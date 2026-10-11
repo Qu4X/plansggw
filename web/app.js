@@ -500,11 +500,9 @@ function setupEventListeners() {
       openCalendarModal();
     });
   }
+
   if (elements.closeModalBtn) elements.closeModalBtn.addEventListener("click", closeCalendarModal);
-  if (elements.calendarModal) {
-    const backdrop = elements.calendarModal.querySelector(".modal-backdrop");
-    if (backdrop) backdrop.addEventListener("click", closeCalendarModal);
-  }
+  if (elements.calendarModal) setupDialogBackdropDismiss(elements.calendarModal, closeCalendarModal);
   if (elements.copyUrlBtn) elements.copyUrlBtn.addEventListener("click", copyCalendarUrl);
 
   // Cross-reference Detail Modal
@@ -535,29 +533,14 @@ function setupEventListeners() {
   if (elements.closeAboutModalBtn) {
     elements.closeAboutModalBtn.addEventListener("click", closeAboutModal);
   }
-  if (elements.aboutModal) {
-    const aboutBackdrop = elements.aboutModal.querySelector(".modal-backdrop");
-    if (aboutBackdrop) aboutBackdrop.addEventListener("click", closeAboutModal);
-  }
+  if (elements.aboutModal) setupDialogBackdropDismiss(elements.aboutModal, closeAboutModal);
   if (elements.closeChangelogModalBtn) {
     elements.closeChangelogModalBtn.addEventListener("click", closeChangelogModal);
   }
   if (elements.confirmChangelogBtn) {
     elements.confirmChangelogBtn.addEventListener("click", closeChangelogModal);
   }
-  if (elements.changelogModal) {
-    elements.changelogModal.addEventListener("click", (e) => {
-      // If user clicks the dialog backdrop itself (outside the modal-dialog-content)
-      const rect = elements.changelogModal.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX && e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog || e.target === elements.changelogModal) {
-        closeChangelogModal();
-      }
-    });
-  }
+  if (elements.changelogModal) setupDialogBackdropDismiss(elements.changelogModal, closeChangelogModal);
   if (elements.closeEventDialogBtn) {
     elements.closeEventDialogBtn.addEventListener("click", () => {
       if (_EventsService && typeof _EventsService.closeEventModal === "function") {
@@ -566,16 +549,9 @@ function setupEventListeners() {
     });
   }
   if (elements.eventDetailsDialog) {
-    elements.eventDetailsDialog.addEventListener("click", (e) => {
-      const rect = elements.eventDetailsDialog.getBoundingClientRect();
-      const isInDialog = (
-        rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
-        rect.left <= e.clientX && e.clientX <= rect.left + rect.width
-      );
-      if (!isInDialog || e.target === elements.eventDetailsDialog) {
-        if (_EventsService && typeof _EventsService.closeEventModal === "function") {
-          _EventsService.closeEventModal();
-        }
+    setupDialogBackdropDismiss(elements.eventDetailsDialog, () => {
+      if (_EventsService && typeof _EventsService.closeEventModal === "function") {
+        _EventsService.closeEventModal();
       }
     });
   }
@@ -1912,6 +1888,20 @@ function escapeHtml(str) {
     .replace(/'/g, "&#039;");
 }
 
+function setupDialogBackdropDismiss(dialogEl, closeFn) {
+  if (!dialogEl) return;
+  dialogEl.addEventListener("click", (e) => {
+    const rect = dialogEl.getBoundingClientRect();
+    const isInDialog = (
+      rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+      rect.left <= e.clientX && e.clientX <= rect.left + rect.width
+    );
+    if (!isInDialog || e.target === dialogEl) {
+      closeFn();
+    }
+  });
+}
+
 // Calendar Modal Handlers
 function openCalendarModal() {
   if (!state.selectedPlanId || !state.selectedGroup) {
@@ -1952,25 +1942,38 @@ function openCalendarModal() {
     elements.calGoogleCard.classList.toggle("recommended", !isApple);
   }
 
-  elements.calendarModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
+  if (typeof elements.calendarModal.showModal === "function") {
+    elements.calendarModal.showModal();
+  } else {
+    elements.calendarModal.classList.remove("hidden");
+  }
 }
 
 function closeCalendarModal() {
-  elements.calendarModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
+  if (!elements.calendarModal) return;
+  if (typeof elements.calendarModal.close === "function") {
+    elements.calendarModal.close();
+  } else {
+    elements.calendarModal.classList.add("hidden");
+  }
 }
 
 function openAboutModal() {
   if (!elements.aboutModal) return;
-  elements.aboutModal.classList.remove("hidden");
-  document.body.classList.add("modal-open");
+  if (typeof elements.aboutModal.showModal === "function") {
+    elements.aboutModal.showModal();
+  } else {
+    elements.aboutModal.classList.remove("hidden");
+  }
 }
 
 function closeAboutModal() {
   if (!elements.aboutModal) return;
-  elements.aboutModal.classList.add("hidden");
-  document.body.classList.remove("modal-open");
+  if (typeof elements.aboutModal.close === "function") {
+    elements.aboutModal.close();
+  } else {
+    elements.aboutModal.classList.add("hidden");
+  }
 }
 
 function copyCalendarUrl() {
@@ -2158,7 +2161,11 @@ function openPwaModal(platform = "android") {
     }
   }
 
-  modal.classList.remove("hidden");
+  if (typeof modal.showModal === "function") {
+    modal.showModal();
+  } else {
+    modal.classList.remove("hidden");
+  }
 }
 
 function openIosModal() {
@@ -2167,7 +2174,11 @@ function openIosModal() {
 
 function closeIosModal() {
   if (elements.iosInstallModal) {
-    elements.iosInstallModal.classList.add("hidden");
+    if (typeof elements.iosInstallModal.close === "function") {
+      elements.iosInstallModal.close();
+    } else {
+      elements.iosInstallModal.classList.add("hidden");
+    }
   }
 }
 
@@ -2251,10 +2262,7 @@ function initPwaInstall() {
     elements.closeIosModalActionBtn.addEventListener("click", closeIosModal);
   }
   if (elements.iosInstallModal) {
-    const backdrop = elements.iosInstallModal.querySelector(".modal-backdrop");
-    if (backdrop) {
-      backdrop.addEventListener("click", closeIosModal);
-    }
+    setupDialogBackdropDismiss(elements.iosInstallModal, closeIosModal);
   }
 }
 
@@ -2315,6 +2323,13 @@ if (typeof module !== "undefined" && module.exports) {
     toggleTheme,
     setupThemeListener,
     withViewTransition,
+    openCalendarModal,
+    closeCalendarModal,
+    openAboutModal,
+    closeAboutModal,
+    openPwaModal,
+    closeIosModal,
+    setupDialogBackdropDismiss,
     state,
     elements
   };

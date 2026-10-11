@@ -341,8 +341,7 @@
 
   <!-- Calendar subscription modal -->
   <!-- Subscription / Calendar Modal -->
-  <div id="calendar-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="calendar-modal-title">
-    <div class="modal-backdrop"></div>
+  <dialog id="calendar-modal" class="modal-dialog" aria-labelledby="calendar-modal-title" closedby="any">
     <div class="modal-content calendar-modal-content">
       <div class="modal-header">
         <div class="modal-header-titles">
@@ -415,7 +414,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <!-- Cross-reference detail modal (Teacher / Room / Subject / Free Rooms) -->
   <div id="cross-modal" class="modal hidden" role="dialog" aria-modal="true">
@@ -439,8 +438,7 @@
   </div>
 
   <!-- PWA Install Guide Modal (Android & iOS) -->
-  <div id="ios-install-modal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-backdrop"></div>
+  <dialog id="ios-install-modal" class="modal-dialog" aria-labelledby="pwa-install-title" closedby="any">
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="pwa-install-title">Zainstaluj Plan WN</h3>
@@ -479,7 +477,7 @@
           style="width: 100%; justify-content: center; margin-top: 1.25rem;">Rozumiem</button>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <!-- What's New / Changelog Modal -->
   <dialog id="changelog-modal" class="modal-dialog" aria-labelledby="changelog-modal-title">
@@ -563,8 +561,7 @@
   </dialog>
 
   <!-- About App Modal -->
-  <div id="about-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="about-modal-title">
-    <div class="modal-backdrop"></div>
+  <dialog id="about-modal" class="modal-dialog about-modal-dialog" aria-labelledby="about-modal-title" closedby="any">
     <div class="modal-content">
       <div class="modal-header">
         <div class="modal-header-titles">
@@ -654,7 +651,7 @@
         </div>
       </div>
     </div>
-  </div>
+  </dialog>
 
   <footer class="app-footer">
     <p>Projekt nieoficjalny dla studentów WN. Dane pobierane z <a href="https://arktur.umg.edu.pl/planyzaj/strpza5.php"

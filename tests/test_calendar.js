@@ -751,7 +751,7 @@ elements.dayTabs = {
 if (typeof document === "undefined") {
   global.document = {
     getElementById(id) {
-      return { innerHTML: "", textContent: "", classList: { add() {}, remove() {}, contains() { return false; } } };
+      return { innerHTML: "", textContent: "", classList: { add() {}, remove() {}, contains() { return false; } }, querySelector() { return { onclick: null }; } };
     },
     createElement(tag) {
       const el = { _text: "" };
@@ -1598,5 +1598,110 @@ if (origMatchMedia) {
 }
 
 console.log("✅ [PASS] View Transitions API (Issue #4) działa poprawnie ze wszystkimi fallbackami.");
+
+// --- TEST 29: Migracja statycznych modali na natywny <dialog> (Issue #8) ---
+console.log("\n-- Test 29: Migracja statycznych modali na natywny <dialog> (Issue #8)");
+const fs = require("fs");
+const indexHtmlContent = fs.readFileSync(path.join(ROOT_DIR, "web/index.html"), "utf-8");
+
+// 1. Sprawdzenie deklaracji w HTML
+assert.ok(
+  /<dialog id="calendar-modal"[^>]*closedby="any"/.test(indexHtmlContent),
+  "calendar-modal powinien być tagiem <dialog> z atrybutem closedby='any'"
+);
+assert.ok(
+  /<dialog id="about-modal"[^>]*closedby="any"/.test(indexHtmlContent),
+  "about-modal powinien być tagiem <dialog> z atrybutem closedby='any'"
+);
+assert.ok(
+  /<dialog id="ios-install-modal"[^>]*closedby="any"/.test(indexHtmlContent),
+  "ios-install-modal powinien być tagiem <dialog> z atrybutem closedby='any'"
+);
+
+// Sprawdzenie usunięcia zbędnych .modal-backdrop
+const calendarModalMatch = indexHtmlContent.match(/<dialog id="calendar-modal"[\s\S]*?<\/dialog>/);
+assert.ok(calendarModalMatch && !calendarModalMatch[0].includes('class="modal-backdrop"'), "calendar-modal nie powinien mieć zbędnego .modal-backdrop");
+const aboutModalMatch = indexHtmlContent.match(/<dialog id="about-modal"[\s\S]*?<\/dialog>/);
+assert.ok(aboutModalMatch && !aboutModalMatch[0].includes('class="modal-backdrop"'), "about-modal nie powinien mieć zbędnego .modal-backdrop");
+const iosModalMatch = indexHtmlContent.match(/<dialog id="ios-install-modal"[\s\S]*?<\/dialog>/);
+assert.ok(iosModalMatch && !iosModalMatch[0].includes('class="modal-backdrop"'), "ios-install-modal nie powinien mieć zbędnego .modal-backdrop");
+
+// 2. Sprawdzenie wywołań showModal() i close() w JS
+const {
+  openCalendarModal: testOpenCalendarModal,
+  closeCalendarModal: testCloseCalendarModal,
+  openAboutModal: testOpenAboutModal,
+  closeAboutModal: testCloseAboutModal,
+  openPwaModal: testOpenPwaModal,
+  closeIosModal: testCloseIosModal,
+  setupDialogBackdropDismiss: testSetupDialogBackdropDismiss
+} = require(path.join(ROOT_DIR, "web/app.js"));
+
+function createMockDialog() {
+  let isOpen = false;
+  let clickHandlers = [];
+  return {
+    isOpen() { return isOpen; },
+    classList: {
+      remove: () => {},
+      add: () => {}
+    },
+    showModal() { isOpen = true; },
+    close() { isOpen = false; },
+    addEventListener(type, fn) {
+      if (type === "click") clickHandlers.push(fn);
+    },
+    simulateClick(event) {
+      clickHandlers.forEach(h => h(event));
+    },
+    getBoundingClientRect() {
+      return { top: 100, bottom: 400, left: 100, right: 400, width: 300, height: 300 };
+    }
+  };
+}
+
+// Test calendarModal
+state.selectedPlanId = "555";
+state.selectedGroup = "GR. 01";
+global.window.location = { origin: "https://planwn.example.com", pathname: "/" };
+global.window.navigator = { userAgent: "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" };
+const mockCalDialog = createMockDialog();
+elements.calendarModal = mockCalDialog;
+testOpenCalendarModal();
+assert.strictEqual(mockCalDialog.isOpen(), true, "openCalendarModal powinien wywołać showModal()");
+testCloseCalendarModal();
+assert.strictEqual(mockCalDialog.isOpen(), false, "closeCalendarModal powinien wywołać close()");
+
+// Test aboutModal
+const mockAboutDialog = createMockDialog();
+elements.aboutModal = mockAboutDialog;
+testOpenAboutModal();
+assert.strictEqual(mockAboutDialog.isOpen(), true, "openAboutModal powinien wywołać showModal()");
+testCloseAboutModal();
+assert.strictEqual(mockAboutDialog.isOpen(), false, "closeAboutModal powinien wywołać close()");
+
+// Test pwaModal / iosInstallModal
+const mockPwaDialog = createMockDialog();
+elements.iosInstallModal = mockPwaDialog;
+testOpenPwaModal("android");
+assert.strictEqual(mockPwaDialog.isOpen(), true, "openPwaModal powinien wywołać showModal()");
+testCloseIosModal();
+assert.strictEqual(mockPwaDialog.isOpen(), false, "closeIosModal powinien wywołać close()");
+
+// 3. Test setupDialogBackdropDismiss
+let dismissed = false;
+const testDialog = createMockDialog();
+testSetupDialogBackdropDismiss(testDialog, () => { dismissed = true; });
+
+// Kliknięcie wewnątrz współrzędnych modala -> nie powinno zamykać
+testDialog.simulateClick({ clientX: 200, clientY: 200, target: {} });
+assert.strictEqual(dismissed, false, "Kliknięcie wewnątrz modala nie powinno go zamykać");
+
+// Kliknięcie poza współrzędnymi modala (backdrop) -> powinno zamknąć
+testDialog.simulateClick({ clientX: 50, clientY: 50, target: testDialog });
+assert.strictEqual(dismissed, true, "Kliknięcie w backdrop powinno wywołać dismiss");
+
+console.log("✅ [PASS] Natywne modale <dialog> (Issue #8) działają poprawnie.");
+
 
 
