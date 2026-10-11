@@ -3159,4 +3159,32 @@ input, select, textarea, button {
   ::view-transition-new(*) {
     animation: none !important;
   }
-}
+}
+
+/* Off-screen rendering performance (Issue #7) */
+.grid-day-col {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 600px;
+}
+
+.day-group {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 350px;
+}
+
+.modal-slot-item,
+.cross-list-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 70px;
+}
+
+.free-room-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 80px;
+}
+
+.search-result-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 50px;
+}
+
