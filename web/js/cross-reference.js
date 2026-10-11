@@ -354,8 +354,8 @@
       this.scheduleEngine = config.scheduleEngine || null;
       this.onBeforeOpen = config.onBeforeOpen || null;
 
-      // Inicjalizacja nasłuchu klawisza Escape i Focus Trap
-      if (typeof document !== "undefined" && this.elements.modal) {
+      // Inicjalizacja nasłuchu zdarzeń modala i wyszukiwarki
+      if (this.elements.modal) {
         this._bindAccessibilityEvents();
         this._bindSearchEvents();
       }
@@ -365,57 +365,89 @@
       const modal = this.elements.modal;
       if (!modal) return;
 
-      // Zamykanie przez kliknięcie w backdrop lub przycisk close
-      const closeBtn = modal.querySelector(".btn-close") || document.getElementById("close-cross-modal");
-      if (closeBtn) {
+      // Zamykanie przez kliknięcie w przycisk close
+      const closeBtn = (typeof modal.querySelector === "function" ? modal.querySelector(".btn-close") : null) ||
+        (typeof document !== "undefined" && typeof document.getElementById === "function" ? document.getElementById("close-cross-modal") : null);
+      if (closeBtn && typeof closeBtn.addEventListener === "function") {
         closeBtn.addEventListener("click", () => this.closeModal());
       }
 
-      const backdrop = modal.querySelector(".modal-backdrop");
-      if (backdrop) {
-        backdrop.addEventListener("click", () => this.closeModal());
+      // Obsługa legacy backdrop jeśli istnieje w DOM
+      if (typeof modal.querySelector === "function") {
+        const backdrop = modal.querySelector(".modal-backdrop");
+        if (backdrop && typeof backdrop.addEventListener === "function") {
+          backdrop.addEventListener("click", () => this.closeModal());
+        }
       }
 
-      // Klawisz Escape i Focus Trap
-      document.addEventListener("keydown", (e) => {
-        if (modal.classList.contains("hidden")) return;
+      // Dialog light-dismiss (kliknięcie poza oknem modalnym)
+      if (typeof modal.addEventListener === "function") {
+        modal.addEventListener("click", (e) => {
+          if (typeof modal.getBoundingClientRect === "function") {
+            const rect = modal.getBoundingClientRect();
+            const isInDialog = (
+              rect.top <= e.clientY && e.clientY <= rect.top + rect.height &&
+              rect.left <= e.clientX && e.clientX <= rect.left + rect.width
+            );
+            if (!isInDialog || e.target === modal) {
+              this.closeModal();
+            }
+          } else if (e.target === modal) {
+            this.closeModal();
+          }
+        });
 
-        if (e.key === "Escape") {
+        modal.addEventListener("cancel", (e) => {
           e.preventDefault();
           this.closeModal();
-          return;
-        }
+        });
+      }
 
-        if (e.key === "Tab") {
-          const focusable = modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
-          if (focusable.length === 0) return;
+      // Klawisz Escape i Focus Trap (fallback dla przeglądarek bez natywnego dialogu)
+      if (typeof document !== "undefined" && typeof document.addEventListener === "function") {
+        document.addEventListener("keydown", (e) => {
+          const isHidden = (modal.classList && typeof modal.classList.contains === "function" && modal.classList.contains("hidden")) ||
+            (modal.open === false);
+          if (isHidden) return;
 
-          const first = focusable[0];
-          const last = focusable[focusable.length - 1];
-
-          if (e.shiftKey && document.activeElement === first) {
+          if (e.key === "Escape") {
             e.preventDefault();
-            last.focus();
-          } else if (!e.shiftKey && document.activeElement === last) {
-            e.preventDefault();
-            first.focus();
+            this.closeModal();
+            return;
           }
-        }
-      });
+
+          if (e.key === "Tab") {
+            if (typeof modal.querySelectorAll !== "function") return;
+            const focusable = modal.querySelectorAll('button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])');
+            if (!focusable || focusable.length === 0) return;
+
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+
+            if (e.shiftKey && document.activeElement === first) {
+              e.preventDefault();
+              last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+              e.preventDefault();
+              first.focus();
+            }
+          }
+        });
+      }
     },
 
     _bindSearchEvents() {
       const input = this.elements.searchInput;
       const clearBtn = this.elements.clearSearchBtn;
 
-      if (input) {
+      if (input && typeof input.addEventListener === "function") {
         input.addEventListener("input", () => this.handleSearch(input.value));
         input.addEventListener("focus", () => {
-          if (input.value.trim().length >= 2) this.handleSearch(input.value);
+          if (input.value && input.value.trim().length >= 2) this.handleSearch(input.value);
         });
       }
 
-      if (clearBtn) {
+      if (clearBtn && typeof clearBtn.addEventListener === "function") {
         clearBtn.addEventListener("click", () => this.clearSearch());
       }
     },
@@ -423,27 +455,54 @@
     openModal(title, badge, bodyHtml, triggerElement = null) {
       if (!this.elements || !this.elements.modal) return;
 
-      this.previousFocusedElement = triggerElement || (typeof document !== "undefined" ? document.activeElement : null);
+      const modal = this.elements.modal;
+      const isAlreadyOpen = modal.open || (modal.classList && typeof modal.classList.contains === "function" && !modal.classList.contains("hidden"));
+
+      // Jeśli modal jest już otwarty (np. nawigacja z sali do wykładowcy), nie nadpisujemy triggerElement pierwotnego wywołania
+      if (!isAlreadyOpen || triggerElement) {
+        this.previousFocusedElement = triggerElement || (typeof document !== "undefined" ? document.activeElement : null);
+      }
 
       if (this.elements.title) this.elements.title.textContent = title;
       if (this.elements.badge) this.elements.badge.textContent = badge;
       if (this.elements.body) this.elements.body.innerHTML = bodyHtml;
 
-      this.elements.modal.classList.remove("hidden");
-      this.elements.modal.setAttribute("aria-hidden", "false");
+      if (typeof modal.showModal === "function") {
+        if (!modal.open) {
+          modal.showModal();
+        }
+      }
+      if (modal.classList && typeof modal.classList.remove === "function") {
+        modal.classList.remove("hidden");
+      }
+      if (typeof modal.setAttribute === "function") {
+        modal.setAttribute("aria-hidden", "false");
+      }
 
       // Fokus na pierwszy element interaktywny lub przycisk zamknięcia
-      const focusable = this.elements.modal.querySelector('input, select, button:not(.modal-backdrop), [tabindex="0"]');
-      if (focusable && typeof focusable.focus === "function") {
-        setTimeout(() => focusable.focus(), 50);
+      if (typeof modal.querySelector === "function") {
+        const focusable = modal.querySelector('input, select, button:not(.modal-backdrop), [tabindex="0"]');
+        if (focusable && typeof focusable.focus === "function") {
+          setTimeout(() => focusable.focus(), 50);
+        }
       }
     },
 
     closeModal() {
       if (!this.elements || !this.elements.modal) return;
 
-      this.elements.modal.classList.add("hidden");
-      this.elements.modal.setAttribute("aria-hidden", "true");
+      const modal = this.elements.modal;
+      if (typeof modal.close === "function") {
+        if (modal.open) {
+          modal.close();
+        }
+      }
+      if (modal.classList && typeof modal.classList.add === "function") {
+        modal.classList.add("hidden");
+      }
+      if (typeof modal.setAttribute === "function") {
+        modal.setAttribute("aria-hidden", "true");
+      }
 
       if (this.previousFocusedElement && typeof this.previousFocusedElement.focus === "function") {
         try {

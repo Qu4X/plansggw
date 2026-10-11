@@ -450,10 +450,20 @@ console.log("\n-- Test 7: DataService (Cache, unieważnianie, fallback i onUpdat
       querySelectorAll: () => [],
       focusCalled: false,
       focus: function() { this.focusCalled = true; },
+      open: false,
+      showModal: function() { this.open = true; },
+      close: function() { this.open = false; },
+      getBoundingClientRect: function() {
+        return { top: 100, bottom: 400, left: 100, right: 400, width: 300, height: 300 };
+      },
       listeners: {},
       addEventListener: function(event, fn) {
         if (!this.listeners[event]) this.listeners[event] = [];
         this.listeners[event].push(fn);
+      },
+      triggerClick: function(event) {
+        const handlers = this.listeners["click"] || [];
+        handlers.forEach(h => h(event));
       }
     };
   }
@@ -490,11 +500,13 @@ console.log("\n-- Test 7: DataService (Cache, unieważnianie, fallback i onUpdat
   assert.strictEqual(mockBody.innerHTML, "<p>Treść testowa</p>");
   assert.strictEqual(mockModal.classList.contains("hidden"), false, "Klasa hidden powinna zostać usunięta");
   assert.strictEqual(mockModal.getAttribute("aria-hidden"), "false");
+  assert.strictEqual(mockModal.open, true, "showModal() powinien ustawić open = true");
 
   // 8b: Zamknięcie modalu i przywrócenie fokusu
   CrossRef.UI.closeModal();
   assert.strictEqual(mockModal.classList.contains("hidden"), true, "Klasa hidden powinna zostać dodana");
   assert.strictEqual(mockModal.getAttribute("aria-hidden"), "true");
+  assert.strictEqual(mockModal.open, false, "close() powinien ustawić open = false");
   assert.strictEqual(mockTriggerBtn.focusCalled, true, "Fokus powinien powrócić do elementu wywołującego");
 
   // 8c: Wyszukiwarka live (handleSearch & clearSearch)
@@ -527,7 +539,39 @@ console.log("\n-- Test 7: DataService (Cache, unieważnianie, fallback i onUpdat
   assert.ok(mockBody.innerHTML.includes('id="fr-search-input"'), "Modal powinien zawierać pole szybkiego filtra sal");
   assert.ok(mockBody.innerHTML.includes('Sala 114'), "Modal powinien wyświetlać listę sal");
 
-  console.log("✅ [PASS] CrossRef.UI poprawnie orkiestruje modale, dostępność (a11y), date picker i wyszukiwarkę.");
+  // 8e: Weryfikacja deklaracji HTML <dialog id="cross-modal"> (Issue #9)
+  const fs = require("fs");
+  const indexHtml = fs.readFileSync(path.join(ROOT_DIR, "web/index.html"), "utf-8");
+  assert.ok(
+    /<dialog id="cross-modal"[^>]*closedby="any"/.test(indexHtml),
+    "cross-modal powinien być tagiem <dialog> z atrybutem closedby='any'"
+  );
+  const crossModalHtml = indexHtml.match(/<dialog id="cross-modal"[\s\S]*?<\/dialog>/);
+  assert.ok(crossModalHtml && !crossModalHtml[0].includes('class="modal-backdrop"'), "cross-modal nie powinien zawierać zbędnego .modal-backdrop");
+
+  // 8f: Nawigacja między widokami (sala -> wykładowca) bez utraty referencji do triggerElement
+  const externalOpener = createMockElement("timetable-badge");
+  CrossRef.UI.openModal("Sala 114", "Sala", "<p>Plan sali</p>", externalOpener);
+  assert.strictEqual(mockModal.open, true);
+  assert.strictEqual(CrossRef.UI.previousFocusedElement, externalOpener);
+
+  // Nawigacja w głąb (np. kliknięcie wykładowcy) nie nadpisuje triggerElement
+  CrossRef.UI.openModal("Boniewicz-Szmyt Katarzyna", "Wykładowca", "<p>Plan wykładowcy</p>");
+  assert.strictEqual(mockTitle.textContent, "Boniewicz-Szmyt Katarzyna");
+  assert.strictEqual(mockModal.open, true, "Modal powinien pozostać otwarty");
+  assert.strictEqual(CrossRef.UI.previousFocusedElement, externalOpener, "Trigger powinien nadal wskazywać externalOpener");
+
+  CrossRef.UI.closeModal();
+  assert.strictEqual(mockModal.open, false);
+  assert.strictEqual(externalOpener.focusCalled, true, "Fokus powinien powrócić do pierwotnego triggerElement");
+
+  // 8g: Light-dismiss poprzez kliknięcie w tło dialogu
+  CrossRef.UI.openModal("Test tła", "Test", "<p>Tło</p>");
+  assert.strictEqual(mockModal.open, true);
+  mockModal.triggerClick({ clientX: 20, clientY: 20, target: mockModal });
+  assert.strictEqual(mockModal.open, false, "Kliknięcie w tło powinno zamknąć modal");
+
+  console.log("✅ [PASS] CrossRef.UI poprawnie orkiestruje natywny <dialog> (Issue #9), a11y, date picker i wyszukiwarkę.");
 
   console.log("\n🎉 Wszystkie testy CrossRef zakończone sukcesem (100% PASS)!\n");
 })();

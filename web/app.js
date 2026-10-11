@@ -512,12 +512,9 @@ function setupEventListeners() {
     });
   }
   if (elements.crossModal) {
-    const backdrop = elements.crossModal.querySelector(".modal-backdrop");
-    if (backdrop) {
-      backdrop.addEventListener("click", () => {
-        if (window.CrossRef && window.CrossRef.UI) window.CrossRef.UI.closeModal();
-      });
-    }
+    setupDialogBackdropDismiss(elements.crossModal, () => {
+      if (window.CrossRef && window.CrossRef.UI) window.CrossRef.UI.closeModal();
+    });
   }
 
   // About App Modal

@@ -1903,6 +1903,11 @@ input, select, textarea, button {
   width: 92%;
 }
 
+.modal-dialog.cross-modal-dialog {
+  max-width: 840px;
+  width: 94%;
+}
+
 .modal-dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);

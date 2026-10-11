@@ -417,8 +417,7 @@
   </dialog>
 
   <!-- Cross-reference detail modal (Teacher / Room / Subject / Free Rooms) -->
-  <div id="cross-modal" class="modal hidden" role="dialog" aria-modal="true">
-    <div class="modal-backdrop"></div>
+  <dialog id="cross-modal" class="modal-dialog cross-modal-dialog" aria-labelledby="cross-modal-title" closedby="any">
     <div class="modal-content modal-content-large">
       <div class="modal-header">
         <div class="modal-header-titles">
@@ -435,7 +434,7 @@
         <!-- Dynamic content populated by JS -->
       </div>
     </div>
-  </div>
+  </dialog>
 
   <!-- PWA Install Guide Modal (Android & iOS) -->
   <dialog id="ios-install-modal" class="modal-dialog" aria-labelledby="pwa-install-title" closedby="any">
