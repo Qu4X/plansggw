@@ -379,11 +379,13 @@ function setupEventListeners() {
   elements.prevWeekBtn.addEventListener("click", () => changeWeek(-1));
   elements.nextWeekBtn.addEventListener("click", () => changeWeek(1));
   elements.todayBtn.addEventListener("click", () => {
-    state.weekOffset = 0;
-    state.selectedDayTab = getTodayCode(true);
-    updateWeekDisplay();
-    updateDayTabsUI();
-    renderSchedule();
+    withViewTransition(() => {
+      state.weekOffset = 0;
+      state.selectedDayTab = getTodayCode(true);
+      updateWeekDisplay();
+      updateDayTabsUI();
+      renderSchedule();
+    });
   });
 
   // Days view selector in sidebar (workdays / active_only / all)
@@ -437,21 +439,25 @@ function setupEventListeners() {
       const days = ["ND", "PON", "WT", "ŚR", "CZW", "PT", "SOB"];
       const dayCode = days[selectedDate.getDay()];
 
-      state.weekOffset = diffWeeks;
-      state.selectedDayTab = dayCode;
+      withViewTransition(() => {
+        state.weekOffset = diffWeeks;
+        state.selectedDayTab = dayCode;
 
-      updateWeekDisplay();
-      updateDayTabsUI();
-      renderSchedule();
+        updateWeekDisplay();
+        updateDayTabsUI();
+        renderSchedule();
+      });
     });
   }
 
   elements.dayTabs.addEventListener("click", (e) => {
     const tab = e.target.closest(".day-tab");
     if (!tab) return;
-    state.selectedDayTab = tab.dataset.day;
-    updateDayTabsUI();
-    renderSchedule();
+    withViewTransition(() => {
+      state.selectedDayTab = tab.dataset.day;
+      updateDayTabsUI();
+      renderSchedule();
+    });
   });
 
   // Calendar notice interactions (switch duplicate plan or dismiss)
@@ -1170,10 +1176,25 @@ function getWeekMonday(offsetWeeks = 0) {
   return baseMonday;
 }
 
+function withViewTransition(callback) {
+  if (
+    typeof document !== "undefined" &&
+    typeof document.startViewTransition === "function" &&
+    typeof window !== "undefined" &&
+    window.matchMedia &&
+    !window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  ) {
+    return document.startViewTransition(callback);
+  }
+  return callback();
+}
+
 function changeWeek(direction) {
-  state.weekOffset += direction;
-  updateWeekDisplay();
-  renderSchedule();
+  withViewTransition(() => {
+    state.weekOffset += direction;
+    updateWeekDisplay();
+    renderSchedule();
+  });
 }
 
 // Automatically resolve initial week offset to the first week with classes
@@ -2293,6 +2314,7 @@ if (typeof module !== "undefined" && module.exports) {
     initTheme,
     toggleTheme,
     setupThemeListener,
+    withViewTransition,
     state,
     elements
   };

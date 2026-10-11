@@ -3139,3 +3139,24 @@ input, select, textarea, button {
   color: var(--brand-accent);
   text-decoration: underline;
 }
+
+/* View Transitions API (Issue #4) */
+#schedule-content {
+  view-transition-name: schedule-content;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(schedule-content),
+  ::view-transition-new(schedule-content) {
+    animation-duration: 0.18s;
+    animation-timing-function: ease-in-out;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

@@ -11,7 +11,7 @@ const getMonday = (...args) => engine.getMonday(...args);
 const getRoomOccupancyAt = (...args) => engine.getRoomOccupancyAt(...args);
 const isTeachingDay = (...args) => engine.isTeachingDay(...args);
 
-const { getSafeGroupName, parsePlanInfo, getAcademicInfoForWeek, updateCalendarNotice, renderSchedule, renderLessonCard, shouldShowChangelog, openChangelogModal, closeChangelogModal, checkChangelogNotification, comparePlans, getPlanSortKey, populatePlanSelect, onStudyModeChange, getDuplicatePlanInfo, getPlanModificationInfo, updateDayTabsUI, initTheme, toggleTheme, setupThemeListener, state, elements } = require(path.join(ROOT_DIR, "web/app.js"));
+const { getSafeGroupName, parsePlanInfo, getAcademicInfoForWeek, updateCalendarNotice, renderSchedule, renderLessonCard, shouldShowChangelog, openChangelogModal, closeChangelogModal, checkChangelogNotification, comparePlans, getPlanSortKey, populatePlanSelect, onStudyModeChange, getDuplicatePlanInfo, getPlanModificationInfo, updateDayTabsUI, initTheme, toggleTheme, setupThemeListener, withViewTransition, state, elements } = require(path.join(ROOT_DIR, "web/app.js"));
 
 console.log("\n🧪 Running Calendar Engine TDD Tests...\n");
 
@@ -1529,5 +1529,74 @@ global.document.documentElement = origDocElem;
 global.localStorage = origStorage;
 
 console.log("✅ [PASS] Dynamic theme-color i przełączanie motywu działają prawidłowo.");
+
+// --- TEST 28: View Transitions API Integration (Issue #4) ---
+console.log("\n-- Test 28: View Transitions API Integration (Issue #4)");
+
+let transitionStarted = false;
+let callbackExecuted = false;
+
+// 1. Browser supports View Transitions and motion is allowed
+const origStartViewTransition = global.document.startViewTransition;
+const origMatchMedia = global.window ? global.window.matchMedia : null;
+
+global.document.startViewTransition = (cb) => {
+  transitionStarted = true;
+  cb();
+  return { finished: Promise.resolve() };
+};
+
+if (!global.window) global.window = {};
+global.window.matchMedia = (query) => ({
+  matches: false, // motion not reduced
+  media: query,
+  addEventListener: () => {},
+  removeEventListener: () => {}
+});
+
+callbackExecuted = false;
+transitionStarted = false;
+withViewTransition(() => {
+  callbackExecuted = true;
+});
+
+assert.strictEqual(transitionStarted, true, "Should invoke startViewTransition when available");
+assert.strictEqual(callbackExecuted, true, "Callback should be executed inside transition");
+
+// 2. Prefers reduced motion -> execute immediately without transition
+transitionStarted = false;
+callbackExecuted = false;
+global.window.matchMedia = (query) => ({
+  matches: query.includes("prefers-reduced-motion: reduce"),
+  media: query,
+  addEventListener: () => {},
+  removeEventListener: () => {}
+});
+
+withViewTransition(() => {
+  callbackExecuted = true;
+});
+assert.strictEqual(transitionStarted, false, "Should not invoke startViewTransition when motion is reduced");
+assert.strictEqual(callbackExecuted, true, "Callback should still execute immediately");
+
+// 3. Fallback when startViewTransition is unsupported
+delete global.document.startViewTransition;
+callbackExecuted = false;
+withViewTransition(() => {
+  callbackExecuted = true;
+});
+assert.strictEqual(callbackExecuted, true, "Callback should execute immediately on unsupported browsers");
+
+// Cleanup
+if (origStartViewTransition) {
+  global.document.startViewTransition = origStartViewTransition;
+} else {
+  delete global.document.startViewTransition;
+}
+if (origMatchMedia) {
+  global.window.matchMedia = origMatchMedia;
+}
+
+console.log("✅ [PASS] View Transitions API (Issue #4) działa poprawnie ze wszystkimi fallbackami.");
 
 
