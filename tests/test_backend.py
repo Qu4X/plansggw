@@ -154,6 +154,25 @@ if len(all9) == 2:
     check("Half 2 has polowa_sem=2 and 8 weeks", all9[1].get("polowa_sem") == 2 and all9[1].get("tygodnie") == 8, f"got {all9[1]}")
     check("Half 2 data_start is 8 weeks after Half 1", all9[1].get("data_start") == "2026-12-02", f"got {all9[1].get('data_start')}")
 
+# ── 9b. Alternating semester halves: chunk duration not truncated ─────────────
+print("\n-- 9b. Alternating semester halves: chunk duration not truncated ----")
+HTML_ALT_HALF = ("<html><body>"
+                 '<td id="td_3_0_8" colspan="1" rowspan="27"><div class="drag"><div>'
+                 'MS 102 <font color="green">07:00</font> (1 poł sem) <font color="red">[od:2026-10-07]</font> <font color="maroon">[il.tyg:5]</font><br>'
+                 'Naw-WE 312 <font color="green">07:45</font> (2 poł sem) <font color="red">[od:2026-12-09]</font> <font color="maroon">[il.tyg:5]</font>'
+                 "</div></div></td></body></html>")
+d9b, _, _ = _wspolny_parser_html(HTML_ALT_HALF)
+all9b = sorted([i for slots in d9b.values() for sd in slots.values() for i in sd.values()],
+               key=lambda l: l.get("polowa_sem") or 0)
+check("Alternating halves: parsed 2 lessons", len(all9b) == 2, f"got {len(all9b)}")
+if len(all9b) == 2:
+    check("Lesson 1 (MS) runs full cell duration until 09:15",
+          all9b[0].get("godziny") == "07:00 - 09:15" and all9b[0].get("height") == 27,
+          f"got {all9b[0].get('godziny')} (height {all9b[0].get('height')})")
+    check("Lesson 2 (Naw-WE) runs until 09:15",
+          all9b[1].get("godziny") == "07:45 - 09:15" and all9b[1].get("height") == 18,
+          f"got {all9b[1].get('godziny')} (height {all9b[1].get('height')})")
+
 # ── 10. Bi-weekly ICS 14-day intervals ────────────────────────────────────────
 print("\n-- 10. Bi-weekly ICS 14-day intervals --------------------------------")
 plan_bi = {"WT": {52: {"przedmiot":"ŁM","raw_przedmiot":"ŁM","prowadzacy":"Krajewska",

@@ -45,6 +45,32 @@ def oblicz_godzine_konca(start_str: str, trwanie_min: int) -> str:
         return start_str
 
 
+def _chunks_are_disjoint(c1: Dict[str, Any], c2: Dict[str, Any]) -> bool:
+    """Sprawdza, czy dwa chunki w tej samej komórce HTML odbywają się w rozłącznych terminach."""
+    # Różne połówki semestru (np. 1 poł sem vs 2 poł sem)
+    if c1.get("polowa_sem") is not None and c2.get("polowa_sem") is not None:
+        if c1["polowa_sem"] != c2["polowa_sem"]:
+            return True
+    # Różne cykle tygodniowe (np. od 1 tyg co 2 tyg vs od 2 tyg co 2 tyg)
+    if c1.get("co_ile") == 2 and c2.get("co_ile") == 2:
+        if c1.get("od_tyg") != c2.get("od_tyg"):
+            return True
+    # Jawnie rozłączne przedziały dat (jeśli oba mają start i liczbę tygodni)
+    d1, w1 = c1.get("data_start"), c1.get("liczba_tygodni")
+    d2, w2 = c2.get("data_start"), c2.get("liczba_tygodni")
+    if d1 and w1 and d2 and w2:
+        try:
+            start1 = datetime.strptime(d1, "%Y-%m-%d").date()
+            end1 = start1 + timedelta(weeks=w1)
+            start2 = datetime.strptime(d2, "%Y-%m-%d").date()
+            end2 = start2 + timedelta(weeks=w2)
+            if end1 <= start2 or end2 <= start1:
+                return True
+        except Exception:
+            pass
+    return False
+
+
 def _resolve_cell_ajax_key(td_id: str, form_inputs: dict) -> str:
     """
     Ekstraktuje klucz zapytania AJAX dla danej komórki planu z ukrytych pól formularza Arktura.
@@ -141,16 +167,50 @@ def _wspolny_parser_html(html_text: str) -> Tuple[Dict[str, Dict[Any, Dict[int, 
         ajax_key = _resolve_cell_ajax_key(tid, inputs_by_id)
         ajax_items = ajax_cache.get(ajax_key, [])
 
-        # Pre-compute start slots for every chunk so each chunk's end = next chunk's start
-        chunk_slot_starts = []
-        for gf in green_fonts:
-            try:
-                sh_j, sm_j = map(int, gf.get_text().strip().split(':'))
-                chunk_slot_starts.append((sh_j - 7) * 12 + sm_j // 5)
-            except Exception:
-                chunk_slot_starts.append(None)
-        while len(chunk_slot_starts) < len(chunks):
-            chunk_slot_starts.append(None)
+        # Pre-compute timing and cycle metadata for every chunk
+        chunk_metas = []
+        for j, ch in enumerate(chunks):
+            ch_text = ' '.join(ch)
+            clean_ch = ch_text.replace('\xa0', ' ').replace('&nbsp;', ' ')
+
+            c_co_ile = 1
+            c_od_tyg = 1
+            m_c = re.search(r"\(od\s*(\d+)\s*tyg\s*co\s*(\d+)\s*tyg\)", clean_ch)
+            if m_c:
+                c_od_tyg = int(m_c.group(1))
+                c_co_ile = int(m_c.group(2))
+            elif re.search(r"\(co\s*(\d+)\s*tyg\)", clean_ch):
+                c_co_ile = int(re.search(r"\(co\s*(\d+)\s*tyg\)", clean_ch).group(1))
+
+            c_polowa = None
+            m_p = re.search(r"\((\d+)\s*poł\s*sem\)", clean_ch)
+            if m_p:
+                c_polowa = int(m_p.group(1))
+
+            c_start_h = green_fonts[j].get_text().strip() if j < len(green_fonts) else None
+            if not c_start_h:
+                tm = re.search(r'\b(\d{2}:\d{2})\b', ch_text)
+                c_start_h = tm.group(1) if tm else None
+
+            c_slot = None
+            if c_start_h:
+                try:
+                    sh_j, sm_j = map(int, c_start_h.split(':'))
+                    c_slot = (sh_j - 7) * 12 + sm_j // 5
+                except Exception:
+                    c_slot = None
+
+            d_m = re.search(r"\[od:\s*(\d{4}-\d{2}-\d{2})\]", ch_text)
+            w_m = re.search(r"\[il\.tyg:\s*(\d+)\]", ch_text)
+
+            chunk_metas.append({
+                "slot_start": c_slot,
+                "polowa_sem": c_polowa,
+                "co_ile": c_co_ile,
+                "od_tyg": c_od_tyg,
+                "data_start": d_m.group(1) if d_m else None,
+                "liczba_tygodni": int(w_m.group(1)) if w_m else None,
+            })
 
         cell_base_start = None
         for i, chunk in enumerate(chunks):
@@ -189,9 +249,15 @@ def _wspolny_parser_html(html_text: str) -> Tuple[Dict[str, Dict[Any, Dict[int, 
             if sub_slot_start < min_slot: min_slot = sub_slot_start
             if cell_end_slot > max_slot: max_slot = cell_end_slot
 
-            # Each chunk ends at the next chunk's start if it starts later; otherwise cell_end_slot
-            next_start = next((chunk_slot_starts[k] for k in range(i + 1, len(chunk_slot_starts))
-                               if chunk_slot_starts[k] is not None and chunk_slot_starts[k] > sub_slot_start), None)
+            # Each chunk ends at the next non-disjoint chunk's start if it starts later; otherwise cell_end_slot
+            candidate_starts = [
+                chunk_metas[k]["slot_start"]
+                for k in range(i + 1, len(chunk_metas))
+                if chunk_metas[k]["slot_start"] is not None
+                and chunk_metas[k]["slot_start"] > sub_slot_start
+                and not _chunks_are_disjoint(chunk_metas[i], chunk_metas[k])
+            ]
+            next_start = min(candidate_starts) if candidate_starts else None
             chunk_end_slot = next_start if next_start is not None else cell_end_slot
             sub_height = max(1, chunk_end_slot - sub_slot_start)
             sub_duration = sub_height * 5
