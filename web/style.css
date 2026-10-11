@@ -90,6 +90,20 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Typography & Modern Text Wrapping */
+h1, h2, h3, h4, h5, h6, .week-label, .header-group-badge {
+  text-wrap: balance;
+}
+
+p, .modal-desc, .modal-body p, .about-disclaimer p, .cross-modal-desc {
+  text-wrap: pretty;
+}
+
+/* Form Controls Accent Color */
+input, select, textarea, button {
+  accent-color: var(--brand-primary);
+}
+
 /* Header */
 .app-header {
   background-color: var(--brand-navy);
@@ -2287,6 +2301,16 @@ body {
   position: relative;
   display: flex;
   align-items: center;
+  border-radius: 8px;
+  transition: box-shadow 0.15s ease;
+}
+
+.search-input-wrapper:has(input:focus) {
+  box-shadow: 0 0 0 1px var(--brand-accent);
+}
+
+.search-input-wrapper:has(input:focus) .search-icon {
+  color: var(--brand-accent);
 }
 
 .search-input-wrapper .search-icon {
