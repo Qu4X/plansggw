@@ -159,8 +159,8 @@ const state = {
   selectedDayTab: "ALL",
   dismissedDuplicatePlans: new Set(),
   dismissedModificationPlans: new Set(),
-  theme: typeof localStorage !== "undefined" && localStorage.getItem("umg_theme")
-    ? localStorage.getItem("umg_theme")
+  theme: typeof localStorage !== "undefined" && (localStorage.getItem("sggw_theme") || localStorage.getItem("umg_theme"))
+    ? (localStorage.getItem("sggw_theme") || localStorage.getItem("umg_theme"))
     : (typeof window !== "undefined" && window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light")
 };
 state.selectedDayTab = typeof window !== "undefined" && window.innerWidth >= 900 ? "ALL" : getTodayCode(true);
@@ -313,7 +313,7 @@ function initTheme() {
   }
   const themeColorMeta = document.querySelector('meta[name="theme-color"]');
   if (themeColorMeta) {
-    themeColorMeta.setAttribute("content", state.theme === "dark" ? "#0b1828" : "#0d233a");
+    themeColorMeta.setAttribute("content", state.theme === "dark" ? "#091713" : "#12322a");
   }
   if (elements.themeToggle) {
     const isDark = state.theme === "dark";
@@ -331,7 +331,9 @@ function setupThemeListener() {
   if (typeof window !== "undefined" && window.matchMedia) {
     const mq = window.matchMedia("(prefers-color-scheme: dark)");
     const handler = (e) => {
-      const saved = typeof localStorage !== "undefined" ? localStorage.getItem("umg_theme") : null;
+      const saved = typeof localStorage !== "undefined"
+        ? (localStorage.getItem("sggw_theme") || localStorage.getItem("umg_theme"))
+        : null;
       if (!saved) {
         state.theme = e.matches ? "dark" : "light";
         initTheme();
@@ -349,6 +351,7 @@ function setupThemeListener() {
 function toggleTheme() {
   state.theme = state.theme === "dark" ? "light" : "dark";
   if (typeof localStorage !== "undefined") {
+    localStorage.setItem("sggw_theme", state.theme);
     localStorage.setItem("umg_theme", state.theme);
   }
   initTheme();

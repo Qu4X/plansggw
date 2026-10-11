@@ -68,10 +68,10 @@ const mon11 = engine.getMonday(new Date(2026, 10, 11));
 const res11 = engine.getLessonMeetingInfo(lessonWed, "ŚR", mon11, "2026-11-11");
 assert.strictEqual(res11.active, false, "11.11 powinno być active = false");
 
-// 13.11.2026 (Piątek jako Środa) -> 6. spotkanie matematyki
-const res13 = engine.getLessonMeetingInfo(lessonWed, "ŚR", mon11, "2026-11-13");
-assert.strictEqual(res13.active, true, "13.11 powinno być active = true (odrabianie ze środy)");
-assert.strictEqual(res13.meetingNum, 6, "13.11 powinno być spotkanie 6");
+// 12.11.2026 (Czwartek jako Środa SGGW) -> 6. spotkanie matematyki
+const res12 = engine.getLessonMeetingInfo(lessonWed, "ŚR", mon11, "2026-11-12");
+assert.strictEqual(res12.active, true, "12.11 powinno być active = true (odrabianie ze środy)");
+assert.strictEqual(res12.meetingNum, 6, "12.11 powinno być spotkanie 6");
 console.log("✅ [PASS] getLessonMeetingInfo poprawnie liczy spotkania przy świętach i zamianach dni.");
 
 // --- Test 7: Guard na nieprawidłowy format data_start ---
@@ -128,18 +128,15 @@ assert.strictEqual(weekResult["ŚR"].status, "holiday");
 assert.strictEqual(weekResult["ŚR"].message, "Święto Niepodległości");
 assert.deepStrictEqual(weekResult["ŚR"].lessons, [], "W święto lista zajęć musi być pusta (D3)");
 
-// Piątek 13.11 -> daySwap ze Środy, z zajęciami matematyki
-assert.strictEqual(weekResult["PT"].status, "daySwap");
-assert.strictEqual(weekResult["PT"].swapReplaceWith, "ŚR");
-assert.strictEqual(weekResult["PT"].lessons.length, 1);
-assert.strictEqual(weekResult["PT"].lessons[0].przedmiot, "Matematyka");
-assert.strictEqual(weekResult["PT"].lessons[0].meetingNumber, 6);
+// Czwartek 12.11 -> daySwap ze Środy, z zajęciami matematyki
+assert.strictEqual(weekResult["CZW"].status, "daySwap");
+assert.strictEqual(weekResult["CZW"].swapReplaceWith, "ŚR");
+assert.strictEqual(weekResult["CZW"].lessons.length, 1);
+assert.strictEqual(weekResult["CZW"].lessons[0].przedmiot, "Matematyka");
+assert.strictEqual(weekResult["CZW"].lessons[0].meetingNumber, 6);
 
-// baseDayPreview dla Piątku 13.11 zawiera oryginalne zajęcia z Piątku (Informatyka) z meetingNumber: null (D5)
-assert.ok(Array.isArray(weekResult["PT"].baseDayPreview), "baseDayPreview powinno być tablicą");
-assert.strictEqual(weekResult["PT"].baseDayPreview.length, 1);
-assert.strictEqual(weekResult["PT"].baseDayPreview[0].przedmiot, "Informatyka");
-assert.strictEqual(weekResult["PT"].baseDayPreview[0].meetingNumber, null, "Preview nie liczy spotkań (D5)");
+// baseDayPreview dla Czwartku 12.11 zawiera oryginalne zajęcia z Czwartku (jeśli były) z meetingNumber: null (D5)
+assert.ok(Array.isArray(weekResult["CZW"].baseDayPreview), "baseDayPreview powinno być tablicą");
 console.log("✅ [PASS] resolveWeekSchedule poprawnie interpretuje święta, zamiany dni i preview.");
 
 // --- Test 10: resolveWeekSchedule — Przerwa świąteczna i sesja ---
@@ -210,8 +207,8 @@ console.log("✅ [PASS] buildScheduleIndex poprawnie indeksuje sale.");
 console.log("\n-- Test 14: resolveBaseDay");
 assert.strictEqual(engine.resolveBaseDay("2026-11-04"), "ŚR", "04.11.2026 to środa");
 assert.strictEqual(engine.resolveBaseDay("2026-11-02"), "PON", "02.11.2026 to poniedziałek");
-// Piątek 13.11.2026 ma zamianę rektorską na środę w academic_calendar.json:
-assert.strictEqual(engine.resolveBaseDay("2026-11-13"), "ŚR", "13.11.2026 (piątek) ma zamianę rektorską na środę");
+// Czwartek 12.11.2026 ma zamianę rektorską na środę w academic_calendar.json SGGW:
+assert.strictEqual(engine.resolveBaseDay("2026-11-12"), "ŚR", "12.11.2026 (czwartek) ma zamianę rektorską na środę");
 assert.strictEqual(engine.resolveBaseDay("2026-11-08"), "ND", "08.11.2026 to niedziela");
 assert.strictEqual(engine.resolveBaseDay(null), null);
 assert.strictEqual(engine.resolveBaseDay(""), null);

@@ -276,15 +276,15 @@ const resSunday = CrossRef.Engine.findFreeRooms(fixtureCrossRefData, {
 });
 assert.ok(resSunday.every(r => r.isFree === true), "W niedzielę 100% sal powinno być wolnych");
 
-// Zamiana dnia: Piątek 13.11.2026 realizuje plan ze środy (ŚR)
+// Zamiana dnia: Czwartek 12.11.2026 realizuje plan ze środy (ŚR) wg SGGW
 // Sala 114 w środę ma chemię 10:15 - 11:45
 const resSwap = CrossRef.Engine.findFreeRooms(fixtureCrossRefData, {
-  dateISO: "2026-11-13", // Piątek z zamianą na ŚR
+  dateISO: "2026-11-12", // Czwartek z zamianą na ŚR
   queryRange: { start: 10 * 60 + 30, end: 11 * 60 },
   scheduleEngine: engine
 });
 const room114Swap = resSwap.find(r => r.room === "114");
-assert.strictEqual(room114Swap.isFree, false, "W piątek z zamianą na środę sala 114 powinna być zajęta środową chemią");
+assert.strictEqual(room114Swap.isFree, false, "W czwartek z zamianą na środę sala 114 powinna być zajęta środową chemią");
 assert.strictEqual(room114Swap.occupyingClass.subject, "Chemia");
 
 // Sobota (2026-10-10): Studia niestacjonarne w sali 114 (09:45 - 11:15)

@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="sggw-leaf-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4ade80" />
+      <stop offset="50%" stop-color="#22c55e" />
+      <stop offset="100%" stop-color="#15803d" />
+    </linearGradient>
+    <linearGradient id="sggw-bg-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1b4d40" />
+      <stop offset="100%" stop-color="#12322a" />
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.35" />
+    </filter>
+  </defs>
+
+  <!-- Background rounded squircle with subtle border -->
+  <rect x="16" y="16" width="480" height="480" rx="108" fill="url(#sggw-bg-grad)" stroke="#2d6a5b" stroke-width="6" />
+
+  <g filter="url(#shadow)">
+    <!-- Central decorative SGGW stem & natural leaf motif -->
+    <!-- Main stem curving gracefully -->
+    <path d="M150 380 C 220 370, 290 310, 340 140" fill="none" stroke="#e6f4ea" stroke-width="12" stroke-linecap="round" />
+
+    <!-- Top primary leaf -->
+    <path d="M340 140 C 370 170, 385 220, 360 260 C 330 250, 310 215, 340 140 Z" fill="url(#sggw-leaf-grad)" />
+
+    <!-- Upper left leaf -->
+    <path d="M295 210 C 240 185, 205 205, 200 240 C 235 255, 275 240, 295 210 Z" fill="url(#sggw-leaf-grad)" />
+
+    <!-- Middle right leaf -->
+    <path d="M280 265 C 340 275, 370 315, 360 350 C 320 345, 290 315, 280 265 Z" fill="url(#sggw-leaf-grad)" />
+
+    <!-- Lower left leaf -->
+    <path d="M235 305 C 175 295, 150 330, 155 365 C 190 370, 225 350, 235 305 Z" fill="url(#sggw-leaf-grad)" />
+
+    <!-- Small accent sprout at top -->
+    <path d="M340 140 C 330 110, 350 90, 370 85 C 375 110, 360 130, 340 140 Z" fill="#86efac" />
+  </g>
+
+  <!-- Subtle golden acorn / academic sun symbol -->
+  <circle cx="365" cy="180" r="14" fill="#fbbf24" opacity="0.9" filter="url(#shadow)" />
+</svg>
