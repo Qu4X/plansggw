@@ -11,7 +11,7 @@ const getMonday = (...args) => engine.getMonday(...args);
 const getRoomOccupancyAt = (...args) => engine.getRoomOccupancyAt(...args);
 const isTeachingDay = (...args) => engine.isTeachingDay(...args);
 
-const { getSafeGroupName, parsePlanInfo, getAcademicInfoForWeek, updateCalendarNotice, renderSchedule, renderLessonCard, shouldShowChangelog, openChangelogModal, closeChangelogModal, checkChangelogNotification, comparePlans, getPlanSortKey, populatePlanSelect, onStudyModeChange, getDuplicatePlanInfo, getPlanModificationInfo, updateDayTabsUI, state, elements } = require(path.join(ROOT_DIR, "web/app.js"));
+const { getSafeGroupName, parsePlanInfo, getAcademicInfoForWeek, updateCalendarNotice, renderSchedule, renderLessonCard, shouldShowChangelog, openChangelogModal, closeChangelogModal, checkChangelogNotification, comparePlans, getPlanSortKey, populatePlanSelect, onStudyModeChange, getDuplicatePlanInfo, getPlanModificationInfo, updateDayTabsUI, initTheme, toggleTheme, setupThemeListener, state, elements } = require(path.join(ROOT_DIR, "web/app.js"));
 
 console.log("\n🧪 Running Calendar Engine TDD Tests...\n");
 
@@ -1471,5 +1471,63 @@ elements.dayTabs = prevDayTabs;
 global.document.createElement = originalCreateElement;
 
 console.log("✅ [PASS] Wskaźniki wydarzeń na zakładkach dni (Issue #10) działają prawidłowo, reagują na tryb studiów, zmianę tygodnia i posiadają atrybuty a11y.");
+
+// --- TEST 27: Theme Management & System Theme Listener (Issue #1) ---
+console.log("\n-- Test 27: Theme Management & System Theme Listener (Issue #1)");
+
+const mockMeta = {
+  attrs: {},
+  setAttribute(k, v) { this.attrs[k] = v; },
+  getAttribute(k) { return this.attrs[k]; }
+};
+
+const mockDocElement = {
+  attrs: {},
+  setAttribute(k, v) { this.attrs[k] = v; },
+  getAttribute(k) { return this.attrs[k]; }
+};
+
+const origQuerySelector = global.document.querySelector;
+const origDocElem = global.document.documentElement;
+const origStorage = global.localStorage;
+
+global.document.documentElement = mockDocElement;
+global.document.querySelector = (sel) => {
+  if (sel === 'meta[name="theme-color"]') return mockMeta;
+  return null;
+};
+
+const storageMap = {};
+global.localStorage = {
+  getItem: (k) => storageMap[k] || null,
+  setItem: (k, v) => { storageMap[k] = String(v); },
+  removeItem: (k) => { delete storageMap[k]; }
+};
+
+// Test Light theme init
+state.theme = "light";
+initTheme();
+assert.strictEqual(mockDocElement.getAttribute("data-theme"), "light");
+assert.strictEqual(mockMeta.getAttribute("content"), "#0d233a", "Light mode theme-color should be #0d233a");
+
+// Test toggleTheme
+toggleTheme();
+assert.strictEqual(state.theme, "dark");
+assert.strictEqual(mockDocElement.getAttribute("data-theme"), "dark");
+assert.strictEqual(mockMeta.getAttribute("content"), "#0b1828", "Dark mode theme-color should be #0b1828");
+assert.strictEqual(global.localStorage.getItem("umg_theme"), "dark");
+
+// Test toggle back to light
+toggleTheme();
+assert.strictEqual(state.theme, "light");
+assert.strictEqual(mockMeta.getAttribute("content"), "#0d233a");
+assert.strictEqual(global.localStorage.getItem("umg_theme"), "light");
+
+// Cleanup
+global.document.querySelector = origQuerySelector;
+global.document.documentElement = origDocElem;
+global.localStorage = origStorage;
+
+console.log("✅ [PASS] Dynamic theme-color i przełączanie motywu działają prawidłowo.");
 
 

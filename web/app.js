@@ -239,6 +239,7 @@ const elements = typeof document !== "undefined" ? {
 if (typeof document !== "undefined") {
   document.addEventListener("DOMContentLoaded", () => {
     initTheme();
+    setupThemeListener();
     setupEventListeners();
     initPwaInstall();
     initCrossRefUI();
@@ -306,7 +307,14 @@ async function loadEventsData() {
 }
 
 function initTheme() {
-  document.documentElement.setAttribute("data-theme", state.theme);
+  if (typeof document === "undefined") return;
+  if (document.documentElement) {
+    document.documentElement.setAttribute("data-theme", state.theme);
+  }
+  const themeColorMeta = document.querySelector('meta[name="theme-color"]');
+  if (themeColorMeta) {
+    themeColorMeta.setAttribute("content", state.theme === "dark" ? "#0b1828" : "#0d233a");
+  }
   if (elements.themeToggle) {
     const isDark = state.theme === "dark";
     const iconName = isDark ? "light_mode" : "dark_mode";
@@ -317,9 +325,32 @@ function initTheme() {
   }
 }
 
+let _themeListenerAttached = false;
+function setupThemeListener() {
+  if (_themeListenerAttached) return;
+  if (typeof window !== "undefined" && window.matchMedia) {
+    const mq = window.matchMedia("(prefers-color-scheme: dark)");
+    const handler = (e) => {
+      const saved = typeof localStorage !== "undefined" ? localStorage.getItem("umg_theme") : null;
+      if (!saved) {
+        state.theme = e.matches ? "dark" : "light";
+        initTheme();
+      }
+    };
+    if (mq.addEventListener) {
+      mq.addEventListener("change", handler);
+    } else if (mq.addListener) {
+      mq.addListener(handler);
+    }
+    _themeListenerAttached = true;
+  }
+}
+
 function toggleTheme() {
   state.theme = state.theme === "dark" ? "light" : "dark";
-  localStorage.setItem("umg_theme", state.theme);
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("umg_theme", state.theme);
+  }
   initTheme();
 }
 
@@ -2259,6 +2290,9 @@ if (typeof module !== "undefined" && module.exports) {
     _EventsService,
     loadEventsData,
     updateDayTabsUI,
+    initTheme,
+    toggleTheme,
+    setupThemeListener,
     state,
     elements
   };
