@@ -177,6 +177,148 @@ class TestSGGWParser(unittest.TestCase):
                 self.assertGreaterEqual(len(res), min_g, f"{plan_id} powinien mieć co najmniej {min_g} grup")
 
 
+    def test_extract_groups_ranges_and_slashes(self):
+        all_groups = [f"gr. {i}" for i in range(1, 11)]
+        # Zakres 1-3
+        self.assertEqual(extract_groups_from_text("Anat. zw. gr.  1-3\nprosektorium b. 24", all_groups), ["gr. 1", "gr. 2", "gr. 3"])
+        # Zakres 4-7
+        self.assertEqual(extract_groups_from_text("Anat. zw. gr.  4-7\nprosektorium b. 24", all_groups), ["gr. 4", "gr. 5", "gr. 6", "gr. 7"])
+        # Zakres 8-10 (z 10)
+        self.assertEqual(extract_groups_from_text("Anat. zw. gr.  8-10\nprosektorium b. 24", all_groups), ["gr. 8", "gr. 9", "gr. 10"])
+        # Slash 1/2 i gwiazdka
+        self.assertEqual(extract_groups_from_text("Język łaciński (*)gr. 1/2 s. 35", all_groups), ["gr. 1", "gr. 2"])
+        # Slash 4/7
+        self.assertEqual(extract_groups_from_text("Język łaciński *\ngr.  4/7 s. 35", all_groups), ["gr. 4", "gr. 7"])
+        # Slash 9/10
+        self.assertEqual(extract_groups_from_text("Język łaciński (*) gr  9/10 s. 35", all_groups), ["gr. 9", "gr. 10"])
+        # 'i' spójnik: gr 1 i 2
+        self.assertEqual(extract_groups_from_text("Biologia Kom gr 1 i 2 sala 33", all_groups), ["gr. 1", "gr. 2"])
+        # Grupy 1-10
+        self.assertEqual(extract_groups_from_text("Technologia informacyjna Grupy 1-10", all_groups), all_groups)
+        # grupy 1,2,3,4
+        self.assertEqual(extract_groups_from_text("Choroby wewnętrzne grupy 1,2,3,4 Sala 6", all_groups), ["gr. 1", "gr. 2", "gr. 3", "gr. 4"])
+        # gr. 1,2– 1071 (1071 to sala, nie grupa)
+        self.assertEqual(extract_groups_from_text("Chów i hodowla zwierząt ćw. gr. 1,2– 1071", all_groups), ["gr. 1", "gr. 2"])
+        # .3,4 po nazwie
+        self.assertEqual(extract_groups_from_text("Choroby zakaźne małych zwierząt.3,4\nSala 119", all_groups), ["gr. 3", "gr. 4"])
+
+    def test_extract_room_and_subject_fixes_sem1(self):
+        from sggw_parser import extract_room_and_subject
+        # 1. Biofizyka parter -> parter usunięty z nazwy
+        sub, room, _ = extract_room_and_subject("Biofizyka wykład                      Aula 7 B. 24 parter")
+        self.assertEqual(sub, "Biofizyka")
+        self.assertIn("Aula 7", room)
+        self.assertNotIn("parter", sub)
+
+        # 2. Anat. zw. gr. 1-3 -> nazwa nie ma -3, znormalizowana do Anatomia zwierząt
+        sub, room, _ = extract_room_and_subject("Anat. zw. gr.  1-3\nprosektorium b. 24/parter")
+        self.assertEqual(sub, "Anatomia zwierząt")
+        self.assertNotIn("-3", sub)
+        self.assertIn("prosektorium", room.lower())
+
+        # 3. Język łaciński s. 35 parter -> sala s. 35 b.24, brak s. 35 i parter w tytule
+        sub, room, _ = extract_room_and_subject("Język łaciński (*)gr. 1/2 s. 35 b.24/parter")
+        self.assertEqual(sub, "Język łaciński")
+        self.assertIn("35", room)
+        self.assertNotIn("parter", sub)
+        self.assertNotIn("s. 35", sub)
+
+        # 4. Psychologia yt 7 1 poł semestru -> likwidacja yt 7, brak 1 poł semestru w tytule
+        sub, room, notes = extract_room_and_subject("Psychologia fakultet Audyt 7 b. 24 1 poł semestru")
+        self.assertEqual(sub, "Psychologia")
+        self.assertIn("Audyt", room)
+        self.assertNotIn("yt", sub)
+        self.assertNotIn("1 poł semestru", sub)
+
+        # 5. Ekofilozofia 2 piętro -> piętro w sali, nie w tytule
+        sub, room, _ = extract_room_and_subject("Ekofilozofia fakultet sala 2065 b 23/ 2 piętro")
+        self.assertEqual(sub, "Ekofilozofia")
+        self.assertIn("2065", room)
+        self.assertNotIn("piętro", sub)
+
+        # 6. Myślenie krytyczne 7 parter -> brak 7 i parter w tytule
+        sub, room, _ = extract_room_and_subject("Myślenie krytyczne fakultet  Audytorium 7 b.24/ parter")
+        self.assertEqual(sub, "Myślenie krytyczne")
+        self.assertIn("Audytorium 7", room)
+        self.assertNotIn("parter", sub)
+        self.assertNotIn("7", sub)
+
+        # 7. Technologia informacyjna - e-learning stacjonarnie -> sala online, brak e-learning w tytule
+        sub, room, _ = extract_room_and_subject("Technologia informacyjna - ćw. e-learning/stacjonarnie\nGrupy 1-10 ( 2-ga połowa semestru)")
+        self.assertEqual(sub, "Technologia informacyjna")
+        self.assertEqual(room, "online")
+        self.assertNotIn("e-learning", sub)
+        self.assertNotIn("stacjonarnie", sub)
+
+        # 8. Orientation day
+        sub, room, notes = extract_room_and_subject('"Orientation day"  02.10.2026 Aula 1 w budynku 24 godzina 8.00-10.00 (obecność obowiązkowa !!!!!)')
+        self.assertEqual(sub, '"Orientation day"')
+        self.assertIn("Aula 1", room)
+        self.assertNotIn("2026", sub)
+        self.assertNotIn("godzina", sub)
+        self.assertNotIn("obowiązkowa", sub)
+
+        # 9. Komunikowanie społ. -> Komunikowanie społeczne
+        sub, room, _ = extract_room_and_subject("Komunikowanie społ.\nfakultet\nAudyt 1 b. 24/ I pietro")
+        self.assertEqual(sub, "Komunikowanie społeczne")
+        self.assertIn("Audyt 1", room)
+
+    def test_extract_room_and_subject_fixes_sem3_5_9(self):
+        from sggw_parser import extract_room_and_subject
+        # Sem 3: Epidemiologia s. 2004 i 50
+        sub, room, _ = extract_room_and_subject("Epidemiologia ćw              s.  2004 b. 23 i  50 b. 22 gr 1,2\n8:15-9:45")
+        self.assertEqual(sub, "Epidemiologia")
+        self.assertIn("2004", room)
+
+        # Sem 3: Fizjologia – s.232
+        sub, room, _ = extract_room_and_subject("Fizjologia – ćw.  s.232 b. 24\ngr. 6,7")
+        self.assertEqual(sub, "Fizjologia")
+        self.assertIn("232", room)
+
+        # Sem 3: Anatomia porównawcza - Prosekt
+        sub, room, _ = extract_room_and_subject("Anatomia porównawcza fakultet - ćw. Prosekt b.24\n3 grupy")
+        self.assertEqual(sub, "Anatomia porównawcza")
+        self.assertIn("Prosekt", room)
+
+        # Sem 3: Mikrobiol -> Mikrobiologia
+        sub, room, _ = extract_room_and_subject("Mikrobiol ćw. b.23\ngr.1,2 od 5/6.XI.26")
+        self.assertEqual(sub, "Mikrobiologia")
+
+        # Sem 5: FARMAKOLOGIA A2072 2131
+        sub, room, _ = extract_room_and_subject("FARMAKOLOGIA ćw. A2072/ 2131 b. 23 gr. 5,6")
+        self.assertEqual(sub, "FARMAKOLOGIA")
+        self.assertIn("A2072", room)
+
+        # Sem 5: PATOFIZJOLOGIA . 104 105
+        sub, room, _ = extract_room_and_subject("PATOFIZJOLOGIA ćw.                             gr 1,2 . 104/105 b 22")
+        self.assertEqual(sub, "PATOFIZJOLOGIA")
+        self.assertIn("104", room)
+
+        # Sem 5: Jak zarządzać emocjami... 1004 Wyk
+        sub, room, _ = extract_room_and_subject("Jak zarządzać emocjami i budować odp psych. fakultet  1004 b.23 Wyk.")
+        self.assertEqual(sub, "Jak zarządzać emocjami i budować odp psych.")
+        self.assertIn("1004", room)
+
+        # Sem 5: DIAGNOSTYKA... ambulatoria nie ucięte do atoria
+        sub, room, _ = extract_room_and_subject("DIAGNOSTYKA KLINICZNA I LABORATORYJNA ćw. 7 grup; Realizacja przedmiotu zgodnie z grafikiem zakładu. b.22  ambulatoria, zajęcia terenowe (Wolica/Obory)")
+        self.assertNotIn("atoria", sub)
+
+        # Sem 5: Fakultet 1 zachowany
+        sub, room, _ = extract_room_and_subject("Fakultet 1 ćw gr c 2-6 tydz;")
+        self.assertTrue(sub.startswith("Fakultet 1"), f"Powinno zaczynać się od Fakultet 1, a jest: {sub}")
+
+        # Sem 9: Fakultety / Toksykologia (nie 'y')
+        sub, room, _ = extract_room_and_subject("Fakultety\nToksykologia Kliniczna równolegle\n10 tyg x 3 h\n2072/2004 b 23 od 17:30")
+        self.assertNotEqual(sub, "y")
+        self.assertIn("Toksykologia Kliniczna", sub)
+
+        # Sem 9: Admin weter s 340 35 -> Administracja weterynaryjna
+        sub, room, _ = extract_room_and_subject("Admin weter gr. 3,4 340/35 b.24")
+        self.assertEqual(sub, "Administracja weterynaryjna")
+        self.assertIn("340/35", room)
+
+
 if __name__ == "__main__":
     unittest.main()
+
 
