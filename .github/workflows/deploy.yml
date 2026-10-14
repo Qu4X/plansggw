@@ -1,4 +1,4 @@
-name: Deploy UMG Schedule to GitHub Pages
+name: Deploy Plan WMW Schedule to GitHub Pages
 
 on:
   # Run automatically once daily in the morning (~06:00 CEST / ~05:00 CET)
@@ -48,12 +48,13 @@ jobs:
       - name: Run Backend Regression Tests (Python)
         run: |
           python tests/test_backend.py
+          python tests/test_sggw_parser.py
 
       - name: Run Frontend Engine Tests (Node.js)
         run: |
           npm test
 
-      - name: Build static site (Scrape & Export to dist/)
+      - name: Build static site (Download XLSX & Export to dist/)
         run: |
           python build_static.py
 

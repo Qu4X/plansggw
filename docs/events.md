@@ -1,6 +1,6 @@
-# 📅 Instrukcja dodawania i edycji wydarzeń w Planie WN
+# 📅 Instrukcja dodawania i edycji wydarzeń w Planie WMW SGGW
 
-Wydarzenia studenckie, integracje, imprezy i oficjalne ogłoszenia w aplikacji **Plan WN** można dodawać na dwa sposoby:
+Wydarzenia studenckie, integracje, imprezy i oficjalne ogłoszenia w aplikacji **Plan WMW** można dodawać na dwa sposoby:
 1. **[Sposób 1: Przez formularz zgłoszeniowy (najprostszy, bez edycji kodu)](#sposób-1-przez-formularz-dla-każdego)** — idealny dla osób nietechnicznych, samorządu i starostów.
 2. **[Sposób 2: Bezpośrednia edycja pliku `data/events.json`](#sposób-2-bezpośrednia-edycja-pliku-dataeventsjson)** — dla administratorów i osób chcących szybko zmienić parametry, zaktualizować lub ukryć wydarzenie.
 
@@ -12,17 +12,17 @@ Nie musisz znać się na programowaniu ani edytować żadnych plików. Wszystko 
 
 ### Krok 1: Otwórz formularz
 Kliknij bezpośredni link do formularza:  
-👉 **[Dodaj nowe wydarzenie (GitHub Issue Form)](https://github.com/Qu4X/planwn/issues/new?template=new_event.yml)**
+👉 **[Dodaj nowe wydarzenie (GitHub Issue Form)](https://github.com/Qu4X/plansggw/issues/new?template=new_event.yml)**
 
 *(Możesz też wejść w zakładkę **Issues** w repozytorium, kliknąć zielony przycisk **New issue** i wybrać kafelek z kalendarzem).*
 
 ### Krok 2: Wypełnij pola
 Wypełnij pola formularza tak, jak w zwykłej ankiecie:
-* **Tytuł wydarzenia** *(wymagane)*: Krótka nazwa (np. `Czwartkowe Flanki Integracyjne` lub `Dni Otwarte Koła Nawigator`).
+* **Tytuł wydarzenia** *(wymagane)*: Krótka nazwa (np. `Grill Integracyjny WMW` lub `Dni Otwarte Wydziału`).
 * **Data wydarzenia** *(wymagane)*: W formacie `RRRR-MM-DD` (np. `2026-10-15`).
 * **Godziny rozpoczęcia i zakończenia** *(opcjonalne)*: W formacie 24-godzinnym (np. `18:00` i `22:00`). Zostaw puste, jeśli wydarzenie trwa cały dzień.
 * **Typ i styl wydarzenia** *(wymagane)*: Wybierz kategorię z listy (np. Flanki, Impreza, Uczelnia, Ważne, Ogłoszenie) — aplikacja sama dobierze odpowiednie kolory, tło i ikonę.
-* **Miejsce / Lokalizacja** *(opcjonalne)*: Gdzie odbywa się wydarzenie (np. `Polanka Redłowska`, `Aula Główna`).
+* **Miejsce / Lokalizacja** *(opcjonalne)*: Gdzie odbywa się wydarzenie (np. `Nowy Rektorat`, `Aula I Ciszewskiego 8`).
 * **Pełny opis wydarzenia** *(opcjonalne)*: Krótki opis, co zabrać ze sobą, dla kogo jest wydarzenie itp. Tekst ten wyświetla się w oknie po kliknięciu w kafelek na planie.
 * **Link zewnętrzny** *(opcjonalne)*: Link do wydarzenia na Facebooku, map Google lub formularza zapisów.
 * **Tekst na przycisku linku** *(opcjonalne)*: Własny napis na przycisku (np. `Zapisz się`, `Zobacz na FB`, `Otwórz mapę`).
@@ -47,7 +47,7 @@ Po 1–2 minutach wydarzenie pojawia się u wszystkich studentów w aplikacji!
 Wszystkie opublikowane wydarzenia przechowywane są w pliku [`data/events.json`](../data/events.json).
 
 ### Jak edytować plik na GitHubie:
-1. Otwórz plik [`data/events.json`](https://github.com/Qu4X/planwn/blob/main/data/events.json).
+1. Otwórz plik [`data/events.json`](https://github.com/Qu4X/plansggw/blob/main/data/events.json).
 2. Kliknij ikonkę ołówka ✏️ (**Edit this file**) w prawym górnym rogu.
 3. Dodaj nowy wpis lub zmodyfikuj istniejący wewnątrz listy `[ ... ]`.
 4. Kliknij zielony przycisk **Commit changes...** u góry strony, aby zapisać zmiany.
@@ -58,15 +58,15 @@ Wklej poniższy blok do pliku (pamiętaj o przecinku `,` oddzielającym wpisy):
 
 ```json
 {
-  "id": "flanki-polanka-2026-10",
-  "title": "Czwartkowe Flanki na Polance",
+  "id": "grill-wmw-2026-10",
+  "title": "Grill Integracyjny Weterynarii",
   "date": "2026-10-15",
   "time_start": "18:00",
   "time_end": "22:00",
-  "type": "flanki",
-  "location": "Polanka Redłowska",
-  "description": "Zabierzcie ze sobą dobry humor i puszki. Zbiórka o 18:00 na polance!",
-  "url": "https://maps.google.com/?q=Polanka+Redlowska",
+  "type": "party",
+  "location": "Tereny zielone przy Ciszewskiego",
+  "description": "Zabierzcie ze sobą dobry humor. Zbiórka o 18:00!",
+  "url": "https://maps.google.com/?q=SGGW+Warszawa",
   "button_text": "Pokaż na mapie",
   "enabled": true,
   "target": {
@@ -82,13 +82,13 @@ Wklej poniższy blok do pliku (pamiętaj o przecinku `,` oddzielającym wpisy):
 
 | Pole | Typ | Wymagane? | Opis i przeznaczenie | Przykłady |
 |---|:---:|:---:|---|---|
-| **`id`** | tekst | **TAK** | Unikalny identyfikator wpisu. Używaj małych liter, cyfr i myślników (bez spacji i polskich znaków). | `"flanki-2026-10"`, `"inauguracja"` |
-| **`title`** | tekst | **TAK** | Tytuł wyświetlany na kafelku w planie oraz na górze okna szczegółów. | `"Flanki Integracyjne"`, `"Dni Otwarte"` |
+| **`id`** | tekst | **TAK** | Unikalny identyfikator wpisu. Używaj małych liter, cyfr i myślników (bez spacji i polskich znaków). | `"grill-2026-10"`, `"inauguracja"` |
+| **`title`** | tekst | **TAK** | Tytuł wyświetlany na kafelku w planie oraz na górze okna szczegółów. | `"Grill Integracyjny"`, `"Dni Otwarte"` |
 | **`date`** | tekst | **TAK** | Dokładna data wydarzenia w formacie ISO: `RRRR-MM-DD`. | `"2026-10-15"` |
 | **`time_start`** | tekst / `null` | Nie | Godzina rozpoczęcia w formacie 24h `GG:MM`. Jeśli wydarzenie trwa cały dzień – wpisz `null` lub pomiń. | `"18:00"`, `null` |
 | **`time_end`** | tekst / `null` | Nie | Godzina zakończenia w formacie 24h `GG:MM`. | `"22:00"`, `null` |
 | **`type`** | tekst | Nie | Kategoria i styl wizualny (automatycznie ustawia tło, ramkę i ikonę). Dostępne: `"flanki"`, `"party"`, `"academic"`, `"warning"`, `"info"`. | `"flanki"`, `"party"` |
-| **`location`** | tekst | Nie | Miejsce wydarzenia wyświetlane z ikoną pinezki 📍. | `"Polanka Redłowska"`, `"Aula Główna"` |
+| **`location`** | tekst | Nie | Miejsce wydarzenia wyświetlane z ikoną pinezki 📍. | `"Nowy Rektorat"`, `"Aula I"` |
 | **`description`** | tekst | Nie | Pełny opis wyświetlany w oknie po kliknięciu w kafelek na planie. | `"Zbiórka przy wejściu głównym..."` |
 | **`url`** | tekst / `null` | Nie | Link zewnętrzny. Jeśli go podasz, w oknie pojawi się przycisk kierujący pod ten adres. | `"https://facebook.com/events/..."` |
 | **`button_text`** | tekst | Nie | Własny napis na przycisku linku (domyślnie: `"Więcej informacji"`). | `"Zapisz się"`, `"Otwórz mapę"` |
@@ -113,7 +113,7 @@ Jeśli nie zdefiniujesz własnych pól `badge`, `icon` ani `color`, aplikacja au
   * Wygląd: Wyróżnione fioletowe tło kafelka.
   * Zastosowanie: Imprezy klubowe, otrzęsiny, juwenalia.
 * **`academic`**:
-  * Plakietka: `Uczelnia`, Ikona: `🎓`, Kolor: oficjalny granat UMG (`#0d3b66`).
+  * Plakietka: `Uczelnia`, Ikona: `🎓`, Kolor: oficjalna zieleń SGGW (`#12322a`).
   * Zastosowanie: Dni rektorskie, godziny dziekańskie, inauguracje, uroczystości.
 * **`warning`**:
   * Plakietka: `Ważne`, Ikona: `⚠️`, Kolor: bursztynowy ostrzegawczy.

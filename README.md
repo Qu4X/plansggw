@@ -1,6 +1,6 @@
 # Plan WMW
 
-[![CI](https://github.com/Qu4X/planwn/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Qu4X/planwn/actions)
+[![CI](https://github.com/Qu4X/plansggw/actions/workflows/deploy.yml/badge.svg?branch=main)](https://github.com/Qu4X/plansggw/actions)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.11%2B-blue)](https://www.python.org/)
 

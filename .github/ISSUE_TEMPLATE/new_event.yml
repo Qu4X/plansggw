@@ -1,12 +1,12 @@
 name: "📅 Zgłoszenie nowego wydarzenia studenckiego"
-description: "Formularz dodania wydarzenia do planu zajęć WN (GitOps)"
+description: "Formularz dodania wydarzenia do planu zajęć WMW SGGW (GitOps)"
 title: "[Wydarzenie]: "
 labels: ["event-proposal"]
 body:
   - type: markdown
     attributes:
       value: |
-        ### 📢 Dodaj wydarzenie do Planu WN
+        ### 📢 Dodaj wydarzenie do Planu WMW SGGW
         Wypełnij poniższe pola. Po zatwierdzeniu przez moderatora (etykieta `approved`), wydarzenie zostanie automatycznie dodane do bazy i opublikowane w aplikacji.
 
   - type: input
@@ -63,8 +63,8 @@ body:
     id: location
     attributes:
       label: Miejsce / Lokalizacja
-      description: 'Gdzie odbywa się wydarzenie? (np. "Polanka Redłowska", "Aula Główna", "Klub Studencki").'
-      placeholder: "Np. Polanka Redłowska"
+      description: 'Gdzie odbywa się wydarzenie? (np. "Nowy Rektorat", "Klinika Koni", "Wolica", "Klub Studencki").'
+      placeholder: "Np. Aula I Ciszewskiego 8"
     validations:
       required: false
 
