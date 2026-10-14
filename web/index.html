@@ -125,8 +125,9 @@
             <use href="#icon-install_mobile"></use>
           </svg>
         </button>
-        <button id="header-search-btn" class="btn-icon" title="Szukaj wykładowcy, sali lub przedmiotu"
-          aria-label="Szukaj">
+        <!-- Header search button (hidden until teacher/room data is available in SGGW) -->
+        <button id="header-search-btn" class="btn-icon hidden" title="Szukaj wykładowcy, sali lub przedmiotu"
+          aria-label="Szukaj" style="display: none;">
           <svg class="icon" aria-hidden="true">
             <use href="#icon-search"></use>
           </svg>
@@ -153,8 +154,8 @@
     </div>
 
     <div class="sidebar-body">
-      <!-- Quick Search -->
-      <div class="sidebar-section search-sidebar-section">
+      <!-- Quick Search (hidden until teacher/room data is available in SGGW) -->
+      <div class="sidebar-section search-sidebar-section hidden" style="display: none;">
         <label for="sidebar-search-input" class="control-label">Szybkie wyszukiwanie:</label>
         <div class="search-input-wrapper">
           <svg class="icon search-icon" aria-hidden="true">
@@ -194,7 +195,8 @@
 
       <div class="sidebar-section tools-sidebar-section">
         <span class="control-label">Narzędzia:</span>
-        <button id="free-rooms-btn" class="btn-secondary btn-sidebar-tool" title="Znajdź wolną salę">
+        <!-- Free rooms finder (hidden until room schedule data is available in SGGW) -->
+        <button id="free-rooms-btn" class="btn-secondary btn-sidebar-tool hidden" title="Znajdź wolną salę" style="display: none;">
           <svg class="icon btn-tool-icon" aria-hidden="true">
             <use href="#icon-meeting_room"></use>
           </svg> <span class="btn-text">Znajdź wolną salę</span>
@@ -438,7 +440,7 @@
   <dialog id="ios-install-modal" class="modal-dialog" aria-labelledby="pwa-install-title" closedby="any">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="pwa-install-title">Zainstaluj Plan WN</h3>
+        <h3 id="pwa-install-title">Zainstaluj Plan WMW</h3>
         <button id="close-ios-modal" class="btn-close" aria-label="Zamknij">
           <svg class="icon" aria-hidden="true">
             <use href="#icon-close"></use>

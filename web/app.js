@@ -1838,14 +1838,13 @@ function renderLessonCard(lesson, targetMonday = null) {
   const targetMon = targetMonday || getWeekMonday(state.weekOffset);
   const prog = getLessonProgress(lesson, lesson.sourceDay || "PON", targetMon, lesson.lessonDate || null);
 
-  const isPhysicalRoom = rawRoom && rawRoom.toUpperCase() !== "OL";
-  const roomHtml = isPhysicalRoom
-    ? `<button class="lesson-room-btn" data-room="${escapeHtml(rawRoom)}" title="Sprawdź plan i dostępność sali ${safeRoom}">${safeRoom}</button>`
-    : `<span class="lesson-room-badge">${safeRoom}</span>`;
+  const roomHtml = safeRoom
+    ? `<span class="lesson-room-badge">${safeRoom}</span>`
+    : "";
 
   const teacherHtml = rawTeacher && rawTeacher !== "Brak danych prowadzącego"
-    ? `<button class="lesson-teacher-btn" data-teacher="${escapeHtml(rawTeacher)}" title="Zobacz pełny plan wykładowcy ${safeTeacher}">${safeTeacher}</button>`
-    : `<span class="lesson-teacher">${safeTeacher || "Brak danych prowadzącego"}</span>`;
+    ? `<span class="lesson-teacher">${safeTeacher}</span>`
+    : "";
 
   const weeksHtml = prog
     ? `<span class="lesson-weeks ${prog.isFinal ? 'final-week' : ''}" title="${escapeHtml(prog.title || 'Spotkanie')}">${escapeHtml(prog.text)}</span>`
