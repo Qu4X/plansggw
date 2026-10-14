@@ -35,7 +35,8 @@
   --form-wyklad: #166534;
   --form-cwiczenia: #0d9488;
   --form-laboratorium: #7c3aed;
-  --form-symulator: #d97706;
+  --form-fakultet: #d97706;
+  --form-symulator: var(--form-fakultet);
 }
 
 [data-theme="dark"] {
@@ -70,7 +71,8 @@
   --form-wyklad: #4ade80;
   --form-cwiczenia: #2dd4bf;
   --form-laboratorium: #a78bfa;
-  --form-symulator: #fbbf24;
+  --form-fakultet: #fbbf24;
+  --form-symulator: var(--form-fakultet);
 }
 
 * {
@@ -959,8 +961,9 @@ input, select, textarea, button {
   border-left-color: var(--form-laboratorium);
 }
 
+.lesson-card.form-fakultet,
 .lesson-card.form-symulator {
-  border-left-color: var(--form-symulator);
+  border-left-color: var(--form-fakultet);
 }
 
 /* Lesson Form Color Legend (Disclosure) */
@@ -1032,7 +1035,8 @@ input, select, textarea, button {
 .legend-dot.form-wyklad { background-color: var(--form-wyklad); }
 .legend-dot.form-cwiczenia { background-color: var(--form-cwiczenia); }
 .legend-dot.form-laboratorium { background-color: var(--form-laboratorium); }
-.legend-dot.form-symulator { background-color: var(--form-symulator); }
+.legend-dot.form-fakultet,
+.legend-dot.form-symulator { background-color: var(--form-fakultet); }
 
 .legend-chevron {
   font-size: 1rem;
@@ -1072,7 +1076,8 @@ input, select, textarea, button {
 .legend-item.form-wyklad { border-left-color: var(--form-wyklad); }
 .legend-item.form-cwiczenia { border-left-color: var(--form-cwiczenia); }
 .legend-item.form-laboratorium { border-left-color: var(--form-laboratorium); }
-.legend-item.form-symulator { border-left-color: var(--form-symulator); }
+.legend-item.form-fakultet,
+.legend-item.form-symulator { border-left-color: var(--form-fakultet); }
 
 .legend-label {
   display: flex;
@@ -1093,7 +1098,8 @@ input, select, textarea, button {
 .legend-item.form-wyklad .legend-abbr { color: var(--form-wyklad); }
 .legend-item.form-cwiczenia .legend-abbr { color: var(--form-cwiczenia); }
 .legend-item.form-laboratorium .legend-abbr { color: var(--form-laboratorium); }
-.legend-item.form-symulator .legend-abbr { color: var(--form-symulator); }
+.legend-item.form-fakultet .legend-abbr,
+.legend-item.form-symulator .legend-abbr { color: var(--form-fakultet); }
 
 .lesson-title {
   font-size: 0.98rem;
@@ -1126,7 +1132,8 @@ input, select, textarea, button {
 .lesson-room-btn,
 .lesson-room-badge,
 .lesson-cycle-badge,
-.lesson-sem-badge {
+.lesson-sem-badge,
+.lesson-form-badge {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1194,6 +1201,18 @@ input, select, textarea, button {
   background: rgba(245, 158, 11, 0.22);
   color: #fde047;
   border-color: rgba(245, 158, 11, 0.45);
+}
+
+.lesson-form-badge.form-badge-fakultet {
+  background: rgba(217, 119, 6, 0.12);
+  color: var(--form-fakultet);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+}
+
+[data-theme="dark"] .lesson-form-badge.form-badge-fakultet {
+  background: rgba(251, 191, 36, 0.18);
+  color: var(--form-fakultet);
+  border-color: rgba(251, 191, 36, 0.45);
 }
 
 .lesson-footer {

@@ -1856,6 +1856,9 @@ function renderLessonCard(lesson, targetMonday = null) {
     : "";
 
   let badgeHtml = "";
+  if (lesson.forma === "fakultet") {
+    badgeHtml += `<span class="lesson-form-badge form-badge-fakultet" title="Zajęcia fakultatywne">Fakultet</span>`;
+  }
   if (lesson.co_ile === 2) {
     badgeHtml += `<span class="lesson-cycle-badge" title="Zajęcia odbywają się co 2 tygodnie">co 2 tyg.</span>`;
   }
@@ -2117,7 +2120,7 @@ function openPwaModal(platform = "android") {
     if (title) title.textContent = "Dodaj do ekranu początkowego (iOS)";
     if (body) {
       body.innerHTML = `
-        <p>Zainstaluj Plan WN na swoim urządzeniu Apple (Safari), aby mieć błyskawiczny dostęp jak do natywnej aplikacji:</p>
+        <p>Zainstaluj Plan WMW na swoim urządzeniu Apple (Safari), aby mieć błyskawiczny dostęp jak do natywnej aplikacji:</p>
         <ol class="ios-install-steps">
           <li>
             <span class="step-num">1</span>
@@ -2147,7 +2150,7 @@ function openPwaModal(platform = "android") {
     if (title) title.textContent = "Zainstaluj aplikację (Android / Chrome)";
     if (body) {
       body.innerHTML = `
-        <p>Zainstaluj Plan WN jako aplikację na telefonie, aby korzystać z planu również offline i bez pasków przeglądarki:</p>
+        <p>Zainstaluj Plan WMW jako aplikację na telefonie, aby korzystać z planu również offline i bez pasków przeglądarki:</p>
         <ol class="ios-install-steps">
           <li>
             <span class="step-num">1</span>
@@ -2164,7 +2167,7 @@ function openPwaModal(platform = "android") {
           <li>
             <span class="step-num">3</span>
             <div class="step-desc">
-              Potwierdź klikając <strong>„Zainstaluj”</strong>. Aplikacja z ikoną kotwicy ⚓ pojawi się na Twoim pulpicie.
+              Potwierdź klikając <strong>„Zainstaluj”</strong>. Ikona Plan WMW pojawi się na Twoim pulpicie.
             </div>
           </li>
         </ol>

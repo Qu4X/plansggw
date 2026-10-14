@@ -914,6 +914,11 @@ const sampleLab = { ...sampleLesson, forma: "laboratorium" };
 const renderedCardLab = renderLessonCard(sampleLab);
 assert.ok(renderedCardLab.includes("form-laboratorium"), "Karta powinna zawierać klasę form-laboratorium");
 
+const sampleFak = { ...sampleLesson, forma: "fakultet" };
+const renderedCardFak = renderLessonCard(sampleFak);
+assert.ok(renderedCardFak.includes("form-fakultet"), "Karta powinna zawierać klasę form-fakultet");
+assert.ok(renderedCardFak.includes("form-badge-fakultet"), "Karta powinna zawierać etykietę form-badge-fakultet");
+
 const sampleNoForm = { ...sampleLesson, forma: null };
 const renderedCardNoForm = renderLessonCard(sampleNoForm);
 assert.ok(!renderedCardNoForm.includes("form-"), "Karta bez formy nie powinna mieć klasy form-*");
