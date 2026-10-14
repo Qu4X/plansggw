@@ -143,7 +143,11 @@ def build_static(limit: Optional[int] = None, filter_query: Optional[str] = None
 
         # Parsowanie arkusza Excel
         parsed_groups_schedule = parse_sggw_excel(local_xlsx)
-        groups_list = sorted(list(parsed_groups_schedule.keys()))
+        def _group_sort_key(g_name: str):
+            parts = re.split(r'(\d+)', g_name)
+            return [int(p) if p.isdigit() else p.lower() for p in parts]
+
+        groups_list = sorted(list(parsed_groups_schedule.keys()), key=_group_sort_key)
 
         plan_entry = {
             "name": plan_name,
@@ -213,10 +217,24 @@ def build_cross_reference_indexes(plans_metadata=None, schedules_dir=SCHEDULES_D
     for fname in os.listdir(schedules_dir):
         if not fname.endswith(".json") or fname == "cross_reference.json":
             continue
-        parts = os.path.splitext(fname)[0].split("_", 1)
-        plan_id = parts[0]
-        group_raw = parts[1] if len(parts) > 1 else "all"
-        group_display = group_raw.replace("_", " ")
+        base_name = os.path.splitext(fname)[0]
+        matched_plan_id = None
+        group_raw = "all"
+        if plans_info:
+            for pid in sorted(plans_info.keys(), key=len, reverse=True):
+                if base_name.startswith(pid + "_"):
+                    matched_plan_id = pid
+                    group_raw = base_name[len(pid) + 1:]
+                    break
+        if not matched_plan_id:
+            parts = base_name.split("_", 1)
+            matched_plan_id = parts[0]
+            group_raw = parts[1] if len(parts) > 1 else "all"
+
+        plan_id = matched_plan_id
+        group_display = group_raw.replace("__", ". ").replace("_", " ")
+        if group_display.startswith("gr.  "):
+            group_display = group_display.replace("gr.  ", "gr. ")
 
         plan_meta = plans_info.get(plan_id, {})
         plan_name = plan_meta.get("clean_name") or plan_meta.get("name") or plan_id

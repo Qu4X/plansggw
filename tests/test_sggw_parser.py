@@ -136,6 +136,47 @@ class TestSGGWParser(unittest.TestCase):
         self.assertEqual(diag_lessons[0].get("data_start"), "2026-11-09")
         self.assertEqual(diag_lessons[0].get("tygodnie"), 10)
 
+    def test_parse_semestr_11_rotations(self):
+        sem11_file = os.path.join(REPO_ROOT, "cache", "wmw_sem_11.xlsx")
+        if not os.path.exists(sem11_file):
+            self.skipTest("cache/wmw_sem_11.xlsx nie istnieje")
+
+        parsed = parse_sggw_excel(sem11_file)
+        self.assertIsInstance(parsed, dict)
+        # Oczekujemy 14 grup stażowych (1a-7b) + 7 grup dziekańskich (1-7)
+        for i in range(1, 8):
+            self.assertIn(f"gr. {i}", parsed)
+            self.assertIn(f"gr. {i}a", parsed)
+            self.assertIn(f"gr. {i}b", parsed)
+
+        # Sprawdzenie wykładu ZZS dla grupy 1a w czwartek
+        gr1a_czw = parsed["gr. 1a"]["CZW"]
+        self.assertIn("wyklad_zzs", gr1a_czw)
+        self.assertEqual(gr1a_czw["wyklad_zzs"]["przedmiot"], "Wykłady ZZS")
+        self.assertEqual(gr1a_czw["wyklad_zzs"]["forma"], "wyklad")
+
+        # Sprawdzenie istnienia staży klinicznych
+        gr1a_pon = parsed["gr. 1a"]["PON"]
+        staz_lessons = [l for k, l in gr1a_pon.items() if l.get("forma") == "staz"]
+        self.assertTrue(len(staz_lessons) > 0, "Grupa 1a powinna mieć staże kliniczne w poniedziałki")
+        self.assertTrue(any("Staż" in l["przedmiot"] for l in staz_lessons))
+
+    def test_all_cached_semesters_parse_successfully(self):
+        expected_min_groups = {
+            "wmw_sem_1": 10,
+            "wmw_sem_3": 8,
+            "wmw_sem_5": 9,
+            "wmw_sem_7": 7,
+            "wmw_sem_9": 8,
+            "wmw_sem_11": 14,
+        }
+        for plan_id, min_g in expected_min_groups.items():
+            fpath = os.path.join(REPO_ROOT, "cache", f"{plan_id}.xlsx")
+            if os.path.exists(fpath):
+                res = parse_sggw_excel(fpath)
+                self.assertGreaterEqual(len(res), min_g, f"{plan_id} powinien mieć co najmniej {min_g} grup")
+
 
 if __name__ == "__main__":
     unittest.main()
+
