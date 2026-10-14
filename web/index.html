@@ -105,6 +105,12 @@
     <symbol id="icon-edit_calendar" viewBox="0 -960 960 960">
       <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v240h-80v-120H200v440h280v80H200Zm480 0v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM200-640h560v-80H200v80Zm0 0v-80 80Z"/>
     </symbol>
+    <symbol id="icon-visibility" viewBox="0 -960 960 960">
+      <path d="M480-320q75 0 127.5-52.5T660-500q0-75-52.5-127.5T480-680q-75 0-127.5 52.5T300-500q0 75 52.5 127.5T480-320Zm0-72q-45 0-76.5-31.5T372-500q0-45 31.5-76.5T480-608q45 0 76.5 31.5T588-500q0 45-31.5 76.5T480-392Zm0 192q-146 0-266-81.5T40-500q54-137 174-218.5T480-800q146 0 266 81.5T920-500q-54 137-174 218.5T480-200Z"/>
+    </symbol>
+    <symbol id="icon-visibility_off" viewBox="0 -960 960 960">
+      <path d="m644-428-58-58q9-47-27-88t-93-32l-58-58q17-5 35-7.5t37-2.5q75 0 127.5 52.5T660-500q0 19-2.5 37T644-428Zm128 126-58-56q38-29 67.5-63.5T832-500q-50-101-143.5-160.5T480-720q-29 0-57 4t-55 12l-62-62q41-17 84-25.5t90-8.5q151 0 269 83.5T920-500q-23 59-60.5 109.5T772-302Zm20 246L624-224q-35 11-70.5 17.5T480-200q-151 0-269-83.5T40-500q21-53 53-98.5t77-81.5L56-792l56-56 736 736-56 56ZM222-626q-41 32-73 70.5T98-500q50 101 143.5 160.5T480-280q33 0 65.5-5t60.5-15l-64-64q-15 4-30 6t-32 2q-75 0-127.5-52.5T300-500q0-16 2-31t6-29l-86-66Z"/>
+    </symbol>
   </svg>
 
   <header class="app-header">
@@ -212,6 +218,13 @@
             <use href="#icon-calendar_month"></use>
           </svg> <span class="btn-text">Dodaj do kalendarza</span>
         </button>
+        <button id="electives-sidebar-btn" class="btn-secondary btn-sidebar-tool" title="Zarządzaj fakultetami"
+          style="margin-top: 0.5rem;">
+          <svg class="icon btn-tool-icon" aria-hidden="true">
+            <use href="#icon-visibility"></use>
+          </svg> <span class="btn-text">Fakultety</span>
+          <span id="electives-hidden-badge" class="tool-counter-badge hidden">0</span>
+        </button>
         <button id="pwa-install-btn" class="btn-secondary btn-sidebar-tool hidden" title="Zainstaluj aplikację"
           style="margin-top: 0.5rem;">
           <svg class="icon btn-tool-icon" aria-hidden="true">
@@ -313,6 +326,20 @@
 
     <!-- Calendar Notice / Day Replacement Alert -->
     <div id="calendar-notice" class="calendar-notice hidden"></div>
+
+    <!-- Electives Hidden Alert Banner -->
+    <div id="electives-banner" class="electives-banner hidden" role="region" aria-label="Informacja o ukrytych fakultetach">
+      <div class="electives-banner-content">
+        <svg class="icon" aria-hidden="true" style="width: 1.15em; height: 1.15em; flex-shrink: 0;">
+          <use href="#icon-visibility_off"></use>
+        </svg>
+        <span id="electives-banner-text">Ukryto terminy fakultetów</span>
+      </div>
+      <div class="electives-banner-actions">
+        <button type="button" id="preview-hidden-electives-btn" class="btn-banner-action">Pokaż ukryte</button>
+        <button type="button" id="manage-electives-banner-btn" class="btn-banner-action primary">Zarządzaj</button>
+      </div>
+    </div>
 
     <!-- Timetable view -->
     <section id="schedule-container" class="schedule-section">
@@ -634,6 +661,35 @@
           <button type="submit" id="submit-propose-btn" class="btn-primary">Zgłoś do głosowania</button>
         </div>
       </form>
+    </div>
+  </dialog>
+
+  <!-- Manage Electives Modal (<dialog closedby="any">) -->
+  <dialog id="electives-dialog" class="modal-dialog electives-dialog" aria-labelledby="electives-dialog-title" closedby="any">
+    <div class="modal-content electives-dialog-content">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <span class="cross-modal-badge">Fakultety</span>
+          <h3 id="electives-dialog-title">Twoje przedmioty fakultatywne</h3>
+        </div>
+        <button id="close-electives-dialog" class="btn-close" aria-label="Zamknij">
+          <svg class="icon" aria-hidden="true">
+            <use href="#icon-close"></use>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body electives-dialog-body">
+        <p class="electives-intro">
+          Zaznacz terminy, na które faktycznie uczęszczasz. Odznaczone grupy i godziny zostaną ukryte w Twoim widoku planu.
+        </p>
+        <div id="electives-list-container" class="electives-list-container">
+          <!-- Dynamic elective items -->
+        </div>
+        <div class="electives-dialog-actions">
+          <button type="button" id="restore-all-electives-btn" class="btn-secondary">Przywróć wszystkie</button>
+          <button type="button" id="confirm-electives-btn" class="btn-primary">Gotowe</button>
+        </div>
+      </div>
     </div>
   </dialog>
 

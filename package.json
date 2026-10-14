@@ -4,11 +4,12 @@
   "description": "Nowoczesny, responsywny plan zajęć dla studentów Wydziału Medycyny Weterynaryjnej SGGW w Warszawie",
   "private": true,
   "scripts": {
-    "test": "node tests/test_calendar.js && node tests/test_cross_reference.js && node tests/test_schedule_engine.js && node tests/test_events.js && node tests/test_community_edit.js",
+    "test": "node tests/test_calendar.js && node tests/test_cross_reference.js && node tests/test_schedule_engine.js && node tests/test_events.js && node tests/test_community_edit.js && node tests/test_electives.js",
     "test:calendar": "node tests/test_calendar.js",
     "test:crossref": "node tests/test_cross_reference.js",
     "test:engine": "node tests/test_schedule_engine.js",
     "test:events": "node tests/test_events.js",
-    "test:community": "node tests/test_community_edit.js"
+    "test:community": "node tests/test_community_edit.js",
+    "test:electives": "node tests/test_electives.js"
   }
 }
