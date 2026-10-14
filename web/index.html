@@ -102,6 +102,9 @@
       <path fill="currentColor"
         d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z" />
     </symbol>
+    <symbol id="icon-edit_calendar" viewBox="0 -960 960 960">
+      <path d="M200-80q-33 0-56.5-23.5T120-160v-560q0-33 23.5-56.5T200-800h40v-80h80v80h320v-80h80v80h40q33 0 56.5 23.5T840-720v240h-80v-120H200v440h280v80H200Zm480 0v-80h-80v-80h80v-80h80v80h80v80h-80v80h-80ZM200-640h560v-80H200v80Zm0 0v-80 80Z"/>
+    </symbol>
   </svg>
 
   <header class="app-header">
@@ -561,6 +564,79 @@
     </div>
   </dialog>
 
+  <!-- Propose Schedule Change Modal (Modern Web Guidance: <dialog closedby="any">) -->
+  <dialog id="propose-dialog" class="modal-dialog propose-dialog" aria-labelledby="propose-dialog-title" closedby="any">
+    <div class="modal-content propose-dialog-content">
+      <div class="modal-header">
+        <div class="modal-header-titles">
+          <span class="cross-modal-badge">Społeczność</span>
+          <h3 id="propose-dialog-title">Zaproponuj zmianę terminu</h3>
+        </div>
+        <button id="close-propose-dialog" class="btn-close" aria-label="Zamknij">
+          <svg class="icon" aria-hidden="true">
+            <use href="#icon-close"></use>
+          </svg>
+        </button>
+      </div>
+      <form id="propose-form" class="modal-body propose-dialog-body" method="dialog">
+        <div class="propose-current-info">
+          <div class="propose-info-label">Przedmiot:</div>
+          <div id="propose-subject-name" class="propose-info-val">—</div>
+          <div class="propose-info-label">Obecny termin:</div>
+          <div id="propose-current-time" class="propose-info-val">—</div>
+        </div>
+
+        <div class="propose-form-group">
+          <label for="propose-scope" class="form-label">Zakres przesunięcia</label>
+          <select id="propose-scope" class="form-select" required>
+            <option value="single">Tylko w wybranym tygodniu (jednorazowo)</option>
+            <option value="permanent">Na stałe do końca semestru</option>
+          </select>
+        </div>
+
+        <div class="propose-form-row">
+          <div class="propose-form-group">
+            <label for="propose-new-day" class="form-label">Nowy dzień</label>
+            <select id="propose-new-day" class="form-select" required>
+              <option value="PON">Poniedziałek</option>
+              <option value="WT">Wtorek</option>
+              <option value="ŚR">Środa</option>
+              <option value="CZW">Czwartek</option>
+              <option value="PT">Piątek</option>
+            </select>
+          </div>
+          <div class="propose-form-group">
+            <label for="propose-new-start" class="form-label">Od godziny</label>
+            <input type="time" id="propose-new-start" class="form-input" required>
+          </div>
+          <div class="propose-form-group">
+            <label for="propose-new-end" class="form-label">Do godziny</label>
+            <input type="time" id="propose-new-end" class="form-input" required>
+          </div>
+        </div>
+
+        <div class="propose-form-group">
+          <label for="propose-new-room" class="form-label">Nowa sala (opcjonalnie)</label>
+          <input type="text" id="propose-new-room" class="form-input" placeholder="np. Sala 106 Wolica">
+        </div>
+
+        <div class="propose-form-group">
+          <label for="propose-reason" class="form-label">Powód zmiany / ustalenia</label>
+          <textarea id="propose-reason" class="form-textarea" rows="2" placeholder="np. Uzgodnione z prowadzącym na wykładzie" required></textarea>
+        </div>
+
+        <p class="propose-note">
+          ℹ️ Po zgłoszeniu inni studenci z Twojej grupy będą mogli potwierdzić zmianę. Gdy propozycja zbierze <strong>10 głosów</strong>, termin w planie zostanie automatycznie zaktualizowany.
+        </p>
+
+        <div class="propose-dialog-actions">
+          <button type="button" id="cancel-propose-btn" class="btn-secondary">Anuluj</button>
+          <button type="submit" id="submit-propose-btn" class="btn-primary">Zgłoś do głosowania</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
   <!-- About App Modal -->
   <dialog id="about-modal" class="modal-dialog about-modal-dialog" aria-labelledby="about-modal-title" closedby="any">
     <div class="modal-content">
@@ -645,6 +721,7 @@
   <script src="js/schedule-engine.js?v=1.0.3"></script>
   <script src="js/cross-reference.js?v=1.0.3"></script>
   <script src="js/events-service.js?v=1.0.3"></script>
+  <script src="js/community-edit.js?v=1.0.3"></script>
   <script src="app.js?v=1.0.3"></script>
 </body>
 

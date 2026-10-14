@@ -160,6 +160,8 @@ const state = {
   weekOffset: 0, // 0 = current week, 1 = next week, etc.
   daysView: savedDaysView, // "workdays" | "active_only" | "all"
   selectedDayTab: "ALL",
+  communityProposals: [],
+  userVotes: new Set(),
   dismissedDuplicatePlans: new Set(),
   dismissedModificationPlans: new Set(),
   theme: typeof localStorage !== "undefined" && (localStorage.getItem("sggw_theme") || localStorage.getItem("umg_theme"))
@@ -233,9 +235,21 @@ const elements = typeof document !== "undefined" ? {
   confirmChangelogBtn: document.getElementById("confirm-changelog-btn"),
   changelogVersionBadge: document.getElementById("changelog-version-badge"),
   changelogDate: document.getElementById("changelog-date"),
-  changelogFeaturesList: document.getElementById("changelog-features-list"),
   eventDetailsDialog: document.getElementById("event-details-dialog"),
-  closeEventDialogBtn: document.getElementById("close-event-dialog")
+  closeEventDialogBtn: document.getElementById("close-event-dialog"),
+  proposeDialog: document.getElementById("propose-dialog"),
+  closeProposeDialogBtn: document.getElementById("close-propose-dialog"),
+  cancelProposeBtn: document.getElementById("cancel-propose-btn"),
+  proposeForm: document.getElementById("propose-form"),
+  proposeSubjectName: document.getElementById("propose-subject-name"),
+  proposeCurrentTime: document.getElementById("propose-current-time"),
+  proposeScope: document.getElementById("propose-scope"),
+  proposeNewDay: document.getElementById("propose-new-day"),
+  proposeNewStart: document.getElementById("propose-new-start"),
+  proposeNewEnd: document.getElementById("propose-new-end"),
+  proposeNewRoom: document.getElementById("propose-new-room"),
+  proposeReason: document.getElementById("propose-reason"),
+  submitProposeBtn: document.getElementById("submit-propose-btn")
 } : {};
 
 // Initialize App
@@ -574,6 +588,20 @@ function setupEventListeners() {
     });
   }
 
+  // Community Edit Propose Change Dialog Listeners
+  if (elements.closeProposeDialogBtn) {
+    elements.closeProposeDialogBtn.addEventListener("click", closeProposeModal);
+  }
+  if (elements.cancelProposeBtn) {
+    elements.cancelProposeBtn.addEventListener("click", closeProposeModal);
+  }
+  if (elements.proposeDialog) {
+    setupDialogBackdropDismiss(elements.proposeDialog, closeProposeModal);
+  }
+  if (elements.proposeForm) {
+    elements.proposeForm.addEventListener("submit", handleProposeSubmit);
+  }
+
   // Fallback for Tally modal: if Tally embed script is blocked by adblockers, open form directly
   document.addEventListener("click", (e) => {
     const tallyLink = e.target.closest("a[data-tally-open], a[href*='tally-open=']");
@@ -591,6 +619,7 @@ function setupEventListeners() {
       if (window.CrossRef && window.CrossRef.UI) window.CrossRef.UI.closeModal();
       closeCalendarModal();
       closeChangelogModal();
+      closeProposeModal();
       if (typeof closeIosModal === "function") closeIosModal();
       if (_EventsService && typeof _EventsService.closeEventModal === "function") {
         _EventsService.closeEventModal();
@@ -652,9 +681,21 @@ function setupEventListeners() {
     });
   }
 
-  // Delegated clicks inside Schedule Cards (Teachers and Rooms)
+  // Delegated clicks inside Schedule Cards (Teachers, Rooms, Propose Changes, Votes)
   if (elements.scheduleContent) {
     elements.scheduleContent.addEventListener("click", (e) => {
+      const proposeBtn = e.target.closest(".btn-propose-change");
+      if (proposeBtn) {
+        e.stopPropagation();
+        openProposeModal(proposeBtn.dataset);
+        return;
+      }
+      const voteBtn = e.target.closest(".btn-vote-proposal");
+      if (voteBtn && !voteBtn.disabled) {
+        e.stopPropagation();
+        handleVoteClick(voteBtn);
+        return;
+      }
       const roomBtn = e.target.closest(".lesson-room-btn");
       if (roomBtn && roomBtn.dataset.room) {
         e.stopPropagation();
@@ -1130,6 +1171,21 @@ async function loadSchedule() {
 
     state.scheduleData = await response.json();
     elements.loadingState.classList.add("hidden");
+
+    // Pobranie propozycji zmian społeczności z Supabase
+    if (typeof CommunityEdit !== "undefined" && typeof CommunityEdit.fetchProposals === "function") {
+      try {
+        state.communityProposals = await CommunityEdit.fetchProposals(state.selectedPlanId, state.selectedGroup);
+        if (state.communityProposals && state.communityProposals.length > 0) {
+          state.userVotes = await CommunityEdit.fetchUserVotes(state.communityProposals.map(p => p.id));
+        } else {
+          state.userVotes = new Set();
+        }
+      } catch (e) {
+        state.communityProposals = [];
+        state.userVotes = new Set();
+      }
+    }
 
     // Smart initial week: jump to first active week if outside semester
     resolveInitialWeekOffset(state.scheduleData);
@@ -1843,9 +1899,6 @@ function renderLessonCard(lesson, targetMonday = null) {
   const targetMon = targetMonday || getWeekMonday(state.weekOffset);
   const prog = getLessonProgress(lesson, lesson.sourceDay || "PON", targetMon, lesson.lessonDate || null);
 
-  const roomHtml = safeRoom
-    ? `<span class="lesson-room-badge">${safeRoom}</span>`
-    : "";
 
   const teacherHtml = rawTeacher && rawTeacher !== "Brak danych prowadzącego"
     ? `<span class="lesson-teacher">${safeTeacher}</span>`
@@ -1870,11 +1923,66 @@ function renderLessonCard(lesson, targetMonday = null) {
 
   const formClass = lesson.forma ? ` form-${escapeHtml(lesson.forma)}` : "";
 
+  // Propozycje zmian społeczności dla tych zajęć
+  const proposals = (state.communityProposals || []).filter(p => {
+    const subjMatch = (p.subject || "").toLowerCase() === (lesson.przedmiot || "").toLowerCase();
+    const dayMatch = (p.original_day || "") === (lesson.sourceDay || "");
+    const timeMatch = (p.original_hours || "") === (lesson.godziny || "");
+    if (!subjMatch || !dayMatch || !timeMatch) return false;
+    if (p.scope === "single" && p.target_date) {
+      return p.target_date === (lesson.lessonDate || "");
+    }
+    return true;
+  });
+
+  const activeProp = proposals.find(p => p.status === "pending");
+  const approvedProp = proposals.find(p => p.status === "approved");
+
+  let proposalBannerHtml = "";
+  let displayTime = safeTime;
+  let displayRoom = safeRoom;
+
+  if (approvedProp) {
+    displayTime = escapeHtml(approvedProp.new_hours || safeTime);
+    if (approvedProp.new_room) displayRoom = escapeHtml(approvedProp.new_room);
+    proposalBannerHtml = `
+      <div class="proposal-banner approved" title="Przesunięto na podstawie potwierdzenia grupy (${approvedProp.votes_count}/10 głosów)">
+        <span>✨ Przesunięto decyzją grupy (${approvedProp.votes_count}/10)</span>
+      </div>
+    `;
+  } else if (activeProp) {
+    const hasVoted = state.userVotes && state.userVotes.has(activeProp.id);
+    const voteBtnText = hasVoted ? `✓ Poparto (${activeProp.votes_count}/10)` : `Popieram (+1) (${activeProp.votes_count}/10)`;
+    const voteBtnDisabled = hasVoted ? "disabled" : "";
+    proposalBannerHtml = `
+      <div class="proposal-banner">
+        <span>⏳ Nowy termin: <strong>${escapeHtml(activeProp.new_day)} ${escapeHtml(activeProp.new_hours)}</strong></span>
+        <button type="button" class="btn-vote-proposal" data-proposal-id="${activeProp.id}" ${voteBtnDisabled} title="${hasVoted ? 'Oddałeś już głos na tę propozycję' : 'Kliknij, aby poprzeć przesunięcie zajęć'}">${voteBtnText}</button>
+      </div>
+    `;
+  }
+
+  const roomHtml = displayRoom
+    ? `<span class="lesson-room-badge">${displayRoom}</span>`
+    : "";
+
+  const proposeBtnHtml = `
+    <button type="button" class="btn-propose-change" title="Zaproponuj zmianę terminu tych zajęć" aria-label="Zaproponuj zmianę terminu dla ${safeTitle}" data-subject="${safeTitle}" data-day="${escapeHtml(lesson.sourceDay || 'PON')}" data-hours="${safeTime}" data-room="${safeRoom}" data-date="${escapeHtml(lesson.lessonDate || '')}">
+      <svg class="icon" aria-hidden="true" style="width: 1.1em; height: 1.1em;">
+        <use href="#icon-edit_calendar"></use>
+      </svg>
+    </button>
+  `;
+
   return `
     <div class="lesson-card${formClass}">
-      <div class="lesson-title">${safeTitle}</div>
-      <div class="lesson-time">${safeTime}</div>
+      <div class="lesson-header-row">
+        <div class="lesson-title">${safeTitle}</div>
+        ${proposeBtnHtml}
+      </div>
+      <div class="lesson-time">${displayTime}</div>
       <div class="lesson-room-wrapper">${roomHtml}${badgeHtml}</div>
+      ${proposalBannerHtml}
       <div class="lesson-footer">
         ${teacherHtml}
         ${weeksHtml}
@@ -2001,6 +2109,189 @@ function copyCalendarUrl() {
       elements.copyFeedback.classList.add("hidden");
     }, 2500);
   });
+}
+
+// ==========================================================================
+// Community Edit & Proposal Handlers
+// ==========================================================================
+function openProposeModal(lessonData) {
+  if (!elements.proposeDialog) return;
+  state.currentProposeLesson = lessonData;
+
+  if (elements.proposeSubjectName) {
+    elements.proposeSubjectName.textContent = lessonData.subject || "Zajęcia";
+  }
+  if (elements.proposeCurrentTime) {
+    const roomStr = lessonData.room ? ` (sala: ${lessonData.room})` : "";
+    elements.proposeCurrentTime.textContent = `${lessonData.day}, ${lessonData.hours}${roomStr}`;
+  }
+
+  // Pre-fill form
+  if (elements.proposeScope) {
+    elements.proposeScope.value = lessonData.date ? "single" : "permanent";
+  }
+  if (elements.proposeNewDay) {
+    elements.proposeNewDay.value = (lessonData.day && ["PON", "WT", "ŚR", "CZW", "PT"].includes(lessonData.day))
+      ? lessonData.day
+      : "PON";
+  }
+
+  // Parse hours if "HH:MM - HH:MM"
+  if (lessonData.hours && lessonData.hours.includes("-")) {
+    const parts = lessonData.hours.split("-").map(s => s.trim());
+    if (elements.proposeNewStart) elements.proposeNewStart.value = parts[0] || "";
+    if (elements.proposeNewEnd) elements.proposeNewEnd.value = parts[1] || "";
+  } else {
+    if (elements.proposeNewStart) elements.proposeNewStart.value = "";
+    if (elements.proposeNewEnd) elements.proposeNewEnd.value = "";
+  }
+
+  if (elements.proposeNewRoom) {
+    elements.proposeNewRoom.value = (lessonData.room && lessonData.room !== "OL") ? lessonData.room : "";
+  }
+  if (elements.proposeReason) {
+    elements.proposeReason.value = "";
+  }
+
+  if (typeof elements.proposeDialog.showModal === "function") {
+    elements.proposeDialog.showModal();
+  } else {
+    elements.proposeDialog.classList.remove("hidden");
+  }
+}
+
+function closeProposeModal() {
+  if (!elements.proposeDialog) return;
+  if (typeof elements.proposeDialog.close === "function") {
+    elements.proposeDialog.close();
+  } else {
+    elements.proposeDialog.classList.add("hidden");
+  }
+  state.currentProposeLesson = null;
+}
+
+async function handleProposeSubmit(e) {
+  if (e && typeof e.preventDefault === "function") {
+    e.preventDefault();
+  }
+  if (!state.currentProposeLesson || !state.selectedPlanId || !state.selectedGroup) {
+    alert("Wystąpił błąd: brak wybranego planu lub zajęć.");
+    return;
+  }
+
+  const newStart = elements.proposeNewStart ? elements.proposeNewStart.value.trim() : "";
+  const newEnd = elements.proposeNewEnd ? elements.proposeNewEnd.value.trim() : "";
+  if (!newStart || !newEnd) {
+    alert("Podaj pełne godziny rozpoczęcia i zakończenia.");
+    return;
+  }
+  if (newStart >= newEnd) {
+    alert("Godzina zakończenia musi być późniejsza niż godzina rozpoczęcia.");
+    return;
+  }
+
+  const reason = elements.proposeReason ? elements.proposeReason.value.trim() : "";
+  if (!reason) {
+    alert("Podaj krótki powód lub uzasadnienie zmiany.");
+    return;
+  }
+
+  const submitBtn = elements.submitProposeBtn;
+  const originalText = submitBtn ? submitBtn.textContent : "Zgłoś do głosowania";
+  if (submitBtn) {
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Zgłaszanie...";
+  }
+
+  try {
+    const scope = elements.proposeScope ? elements.proposeScope.value : "single";
+    const targetDate = scope === "single" ? state.currentProposeLesson.date : null;
+
+    const payload = {
+      planId: state.selectedPlanId,
+      groupName: state.selectedGroup,
+      subject: state.currentProposeLesson.subject,
+      scope: scope,
+      targetDate: targetDate,
+      originalDay: state.currentProposeLesson.day,
+      originalHours: state.currentProposeLesson.hours,
+      newDay: elements.proposeNewDay ? elements.proposeNewDay.value : "PON",
+      newHours: `${newStart} - ${newEnd}`,
+      newRoom: elements.proposeNewRoom ? elements.proposeNewRoom.value.trim() : "",
+      reason: reason
+    };
+
+    if (typeof CommunityEdit !== "undefined" && typeof CommunityEdit.submitProposal === "function") {
+      const created = await CommunityEdit.submitProposal(payload);
+      if (created) {
+        state.communityProposals = [created, ...(state.communityProposals || []).filter(p => p.id !== created.id)];
+        if (!state.userVotes) state.userVotes = new Set();
+        state.userVotes.add(created.id);
+      }
+    }
+
+    closeProposeModal();
+    renderSchedule();
+    showToast("Zgłoszono propozycję! Twój głos został zaliczony (1/10).");
+  } catch (err) {
+    console.error("Błąd podczas zgłaszania propozycji:", err);
+    alert(`Nie udało się zgłosić propozycji: ${err.message || err}`);
+  } finally {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalText;
+    }
+  }
+}
+
+async function handleVoteClick(btn) {
+  const proposalId = btn.dataset.proposalId;
+  if (!proposalId) return;
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = "Głosowanie...";
+
+  try {
+    if (typeof CommunityEdit !== "undefined" && typeof CommunityEdit.castVote === "function") {
+      await CommunityEdit.castVote(proposalId);
+      if (!state.userVotes) state.userVotes = new Set();
+      state.userVotes.add(proposalId);
+
+      const prop = (state.communityProposals || []).find(p => p.id === proposalId);
+      if (prop) {
+        prop.votes_count = (prop.votes_count || 0) + 1;
+        if (prop.votes_count >= 10) {
+          prop.status = "approved";
+        }
+      }
+
+      renderSchedule();
+      showToast("Twój głos został pomyślnie oddany!");
+    }
+  } catch (err) {
+    console.error("Błąd oddawania głosu:", err);
+    alert(err.message || "Błąd oddawania głosu.");
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+function showToast(message) {
+  if (typeof document === "undefined") return;
+  let toast = document.getElementById("app-toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.id = "app-toast";
+    toast.className = "app-toast";
+    document.body.appendChild(toast);
+  }
+  toast.textContent = message;
+  toast.classList.add("show");
+  if (toast._timeout) clearTimeout(toast._timeout);
+  toast._timeout = setTimeout(() => {
+    toast.classList.remove("show");
+  }, 3500);
 }
 
 // ==========================================================================
@@ -2344,6 +2635,11 @@ if (typeof module !== "undefined" && module.exports) {
     closeCalendarModal,
     openAboutModal,
     closeAboutModal,
+    openProposeModal,
+    closeProposeModal,
+    handleProposeSubmit,
+    handleVoteClick,
+    showToast,
     openPwaModal,
     closeIosModal,
     setupDialogBackdropDismiss,
