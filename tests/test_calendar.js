@@ -1676,5 +1676,14 @@ assert.strictEqual(dismissed, true, "Kliknięcie w backdrop powinno wywołać di
 
 console.log("✅ [PASS] Natywne modale <dialog> (Issue #8) działają poprawnie.");
 
+// Regression Test: Wymagany viewport meta tag dla responsywności mobilnej
+console.log("\n-- Test: Weryfikacja znacznika viewport meta dla urządzeń mobilnych");
+assert.match(
+  indexHtmlContent,
+  /<meta\s+name=["']viewport["']\s+content=["'][^"']*width=device-width[^"']*["']\s*\/?>/i,
+  "web/index.html musi zawierać poprawny znacznik <meta name=\"viewport\"> z width=device-width"
+);
+console.log("✅ [PASS] Znacznik viewport meta jest obecny i poprawny.");
+
 
 

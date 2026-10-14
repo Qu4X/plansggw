@@ -1915,6 +1915,7 @@ input, select, textarea, button {
   width: 90%;
   margin: auto;
   color: var(--text-primary);
+  overflow: hidden;
 }
 
 .modal-dialog.about-modal-dialog {
@@ -3573,9 +3574,20 @@ input, select, textarea, button {
 }
 
 /* Electives Dialog Styles */
-.electives-dialog-content {
+.modal-dialog.electives-dialog {
   max-width: 540px;
-  width: 95vw;
+  width: min(94vw, 540px);
+}
+
+.electives-dialog-content {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.electives-dialog-body {
+  box-sizing: border-box;
+  overflow-x: hidden;
 }
 
 .electives-intro {
@@ -3591,8 +3603,10 @@ input, select, textarea, button {
   gap: 1rem;
   max-height: 55vh;
   overflow-y: auto;
+  overflow-x: hidden;
   padding-right: 0.25rem;
   margin-bottom: 1.25rem;
+  box-sizing: border-box;
 }
 
 .elective-group {
@@ -3600,6 +3614,8 @@ input, select, textarea, button {
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 0.85rem;
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 .elective-group-header {
@@ -3616,12 +3632,15 @@ input, select, textarea, button {
   font-size: 0.92rem;
   font-weight: 700;
   color: var(--text-primary);
+  word-break: break-word;
 }
 
 .elective-status-badge {
   font-size: 0.74rem;
   font-weight: 600;
   color: var(--brand-accent);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .elective-slots-list {
