@@ -1,22 +1,41 @@
-# Skrypty testowe i zrzuty
+# Środowisko wirtualne Python
+.venv/
+venv/
+env/
+
+# Cache i kompilacja Pythona
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Środowisko Node / testy
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Pliki systemowe i IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+*.log
+
+# Katalogi wyjściowe i tymczasowe
+dist/
+temp/
+tmp/
+scratch/
+.scratch/
+cache_nst_pdf/
+architecture-review-*.html
+
+# Jednorazowe pliki testowe w roocie
 /test_scrapper.py
 /scrapper_test.py
 /test_*.py
 /strpza6_response.txt
 !/tests/strpza6_response.txt
-
-# Środowisko wirtualne
-.venv/
-venv/
-
-# Pliki systemowe PyCharma i cache Pythona
-.idea/
-__pycache__/
-*.pyc
-dist/
-icons/
-temp/
-scratch/
-.scratch/
-cache_nst_pdf/
-architecture-review-*.html

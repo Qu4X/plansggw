@@ -574,7 +574,7 @@ function setupEventListeners() {
     const tallyLink = e.target.closest("a[data-tally-open], a[href*='tally-open=']");
     if (tallyLink && (!window.Tally || typeof window.Tally.openPopup !== "function")) {
       e.preventDefault();
-      const formId = tallyLink.getAttribute("data-tally-open") || "2E2vNj";
+      const formId = tallyLink.getAttribute("data-tally-open") || "VLRkgl";
       window.open(`https://tally.so/r/${formId}`, "_blank", "noopener");
     }
   });
