@@ -28,6 +28,7 @@
   --shadow-md: 0 4px 6px -1px rgba(18, 50, 42, 0.08), 0 2px 4px -2px rgba(18, 50, 42, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(18, 50, 42, 0.1), 0 4px 6px -4px rgba(18, 50, 42, 0.05);
   --radius: 10px;
+  --radius-md: 10px;
   --radius-sm: 6px;
   --color-success: #10b981;
 
@@ -319,11 +320,16 @@ input, select, textarea, button {
   padding: 0.5rem 0.85rem;
   font-size: 0.875rem;
   font-weight: 600;
-  display: flex;
+  display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.4rem;
   cursor: pointer;
   transition: background-color 0.2s, transform 0.1s;
+}
+
+[data-theme="dark"] .btn-primary {
+  color: #091713;
 }
 
 .btn-primary:hover {
@@ -331,6 +337,31 @@ input, select, textarea, button {
 }
 
 .btn-primary:active {
+  transform: scale(0.97);
+}
+
+.btn-secondary {
+  background-color: var(--bg-card-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--text-muted);
+}
+
+.btn-secondary:active {
   transform: scale(0.97);
 }
 
@@ -449,6 +480,7 @@ input, select, textarea, button {
 
 .btn-sidebar-tool {
   width: 100%;
+  position: relative;
   justify-content: center;
   padding: 0.7rem 1rem;
   font-size: 0.875rem;
@@ -1798,20 +1830,22 @@ input, select, textarea, button {
   position: relative;
   background: var(--bg-card);
   border-radius: var(--radius);
-  max-width: 480px;
   width: 100%;
+  max-width: 100%;
   max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
   display: flex;
   flex-direction: column;
   box-shadow: var(--shadow-lg);
   border: 1px solid var(--border-subtle);
   animation: modalIn 0.2s ease-out;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 #about-modal .modal-content {
-  max-width: 780px;
-  width: 92%;
+  width: 100%;
+  max-width: 100%;
 }
 
 @keyframes modalIn {
@@ -1906,26 +1940,48 @@ input, select, textarea, button {
   transition: background-color 0.2s;
 }
 
-/* Native Dialog & Changelog Modal */
+/* Native Dialog & Modal Scroll Containment */
+html:has(dialog[open]),
+body:has(dialog[open]),
+body.modal-open {
+  overflow: hidden !important;
+  overscroll-behavior: none !important;
+}
+
+dialog[open] {
+  overscroll-behavior: contain;
+}
+
 .modal-dialog {
   border: none;
   padding: 0;
   background: transparent;
   max-width: 480px;
-  width: 90%;
+  width: min(94vw, 480px);
   margin: auto;
+  inset: 0;
   color: var(--text-primary);
   overflow: hidden;
+  overscroll-behavior: contain;
+  box-sizing: border-box;
 }
 
 .modal-dialog.about-modal-dialog {
   max-width: 780px;
-  width: 92%;
+  width: min(94vw, 780px);
+  margin: auto;
 }
 
 .modal-dialog.cross-modal-dialog {
   max-width: 840px;
-  width: 94%;
+  width: min(94vw, 840px);
+  margin: auto;
+}
+
+.modal-dialog#calendar-modal {
+  max-width: 540px;
+  width: min(94vw, 540px);
+  margin: auto;
 }
 
 .modal-dialog::backdrop {
@@ -2306,6 +2362,7 @@ input, select, textarea, button {
 /* Secondary Button in Sidebar */
 .btn-sidebar-tool {
   width: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -3499,66 +3556,126 @@ input, select, textarea, button {
   align-items: center;
   justify-content: space-between;
   gap: 0.75rem;
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1rem;
   margin: 0.75rem 0;
-  border-radius: var(--radius-md);
-  background: rgba(34, 197, 94, 0.08);
-  border: 1px solid rgba(34, 197, 94, 0.25);
+  border-radius: var(--radius);
+  background: var(--bg-card);
+  border: 1px solid var(--border-subtle);
+  border-left: 4px solid var(--form-fakultet, #d97706);
+  box-shadow: var(--shadow-sm);
   color: var(--text-primary);
   font-size: 0.86rem;
   animation: fadeIn 0.2s ease-out;
 }
 
 [data-theme="dark"] .electives-banner {
-  background: rgba(34, 197, 94, 0.12);
-  border-color: rgba(34, 197, 94, 0.3);
+  background: var(--bg-card);
+  border-color: var(--border-subtle);
+  border-left-color: var(--form-fakultet, #fbbf24);
 }
 
 .electives-banner-content {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   font-weight: 500;
+  min-width: 0;
+}
+
+.electives-banner-content svg {
+  color: var(--form-fakultet, #d97706);
+}
+
+[data-theme="dark"] .electives-banner-content svg {
+  color: var(--form-fakultet, #fbbf24);
 }
 
 .electives-banner-actions {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.45rem;
   flex-shrink: 0;
 }
 
 .btn-banner-action {
-  background: transparent;
-  border: 1px solid var(--border-subtle);
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--border-strong);
   color: var(--text-primary);
-  padding: 0.35rem 0.7rem;
+  padding: 0.35rem 0.75rem;
   border-radius: var(--radius-sm);
   font-size: 0.78rem;
   font-weight: 600;
   cursor: pointer;
-  min-height: 36px;
+  min-height: 34px;
   display: inline-flex;
   align-items: center;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  justify-content: center;
+  transition: all 0.15s ease;
 }
 
 .btn-banner-action:hover {
-  background: var(--bg-hover);
+  background: var(--border-subtle);
+  border-color: var(--text-secondary);
 }
 
 .btn-banner-action.primary {
-  background: var(--brand-accent);
-  border-color: var(--brand-accent);
+  background: var(--brand-primary);
+  border-color: var(--brand-primary);
   color: #fff;
 }
 
 .btn-banner-action.primary:hover {
-  opacity: 0.9;
+  background: var(--brand-primary-hover);
+}
+
+[data-theme="dark"] .btn-banner-action.primary {
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: #091713;
+}
+
+.btn-banner-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  font-size: 0.95rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn-banner-close:hover {
+  color: var(--text-primary);
+  background: var(--bg-card-subtle);
+  border-color: var(--border-subtle);
+}
+
+@media (max-width: 600px) {
+  .electives-banner {
+    flex-wrap: wrap;
+    gap: 0.65rem;
+  }
+
+  .electives-banner-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 
 /* Tool counter badge */
 .tool-counter-badge {
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -3570,42 +3687,58 @@ input, select, textarea, button {
   border-radius: 9999px;
   font-size: 0.72rem;
   font-weight: 700;
-  margin-left: auto;
+  pointer-events: none;
 }
 
 /* Electives Dialog Styles */
 .modal-dialog.electives-dialog {
   max-width: 540px;
   width: min(94vw, 540px);
+  max-height: min(88dvh, 720px);
+  margin: auto;
 }
 
 .electives-dialog-content {
   width: 100%;
   max-width: 100%;
+  height: 100%;
+  max-height: min(88dvh, 720px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
   box-sizing: border-box;
 }
 
 .electives-dialog-body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  padding: 1.15rem 1.25rem 1rem;
   box-sizing: border-box;
-  overflow-x: hidden;
 }
 
 .electives-intro {
+  flex-shrink: 0;
   font-size: 0.85rem;
   color: var(--text-secondary);
   line-height: 1.45;
-  margin-bottom: 1rem;
+  margin-bottom: 0.85rem;
 }
 
 .electives-list-container {
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  max-height: 55vh;
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-  padding-right: 0.25rem;
-  margin-bottom: 1.25rem;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding-right: 0.35rem;
+  margin-bottom: 0.85rem;
   box-sizing: border-box;
 }
 
@@ -3615,7 +3748,7 @@ input, select, textarea, button {
   border-radius: var(--radius-md);
   padding: 0.85rem;
   box-sizing: border-box;
-  overflow: hidden;
+  flex-shrink: 0;
 }
 
 .elective-group-header {
@@ -3679,12 +3812,15 @@ input, select, textarea, button {
   height: 1.15rem;
   accent-color: var(--brand-accent);
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .elective-slot-info {
   display: flex;
   flex-direction: column;
   gap: 0.1rem;
+  min-width: 0;
+  word-break: break-word;
 }
 
 .elective-slot-time {
@@ -3701,7 +3837,11 @@ input, select, textarea, button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-shrink: 0;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-card);
 }
 
 

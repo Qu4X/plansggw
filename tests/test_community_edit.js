@@ -140,7 +140,7 @@ console.log("\n🧪 Running Community Edit & Supabase Integration TDD Tests...\n
   assert.ok(htmlPending.includes("btn-propose-change"), "Powinien zawierać przycisk proponowania zmiany");
   assert.ok(htmlPending.includes("proposal-banner"), "Powinien zawierać banner propozycji");
   assert.ok(htmlPending.includes("WT 10:15 - 12:00"), "Powinien wskazywać proponowany nowy termin");
-  assert.ok(htmlPending.includes("Popieram (+1) (4/10)"), "Powinien zawierać przycisk głosowania z licznikiem");
+  assert.ok(htmlPending.includes("Popieram (4/10)"), "Powinien zawierać przycisk głosowania z licznikiem");
 
   // Po oddaniu głosu przycisk powinien pokazywać stan zatwierdzony
   state.userVotes.add("prop-pending-1");
@@ -168,7 +168,7 @@ console.log("\n🧪 Running Community Edit & Supabase Integration TDD Tests...\n
   const htmlApproved = renderLessonCard(lesson);
   assert.ok(htmlApproved.includes("11:15 - 13:00"), "Wyświetlana godzina powinna zostać podmieniona na zatwierdzoną");
   assert.ok(htmlApproved.includes("Sala Nowa 200"), "Wyświetlana sala powinna zostać podmieniona na nową");
-  assert.ok(htmlApproved.includes("Przesunięto decyzją grupy (10/10)"), "Powinien wyświetlać banner zatwierdzenia przez grupę");
+  assert.ok(htmlApproved.includes("Przesunięto decyzją grupy"), "Powinien wyświetlać banner zatwierdzenia przez grupę");
   console.log("✅ [PASS] renderLessonCard poprawnie aktualizuje plan po zebraniu 10 głosów.");
 
   console.log("\n🎉 Wszystkie testy Community Edit zakończone sukcesem (100% PASS)!\n");

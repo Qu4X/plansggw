@@ -137,6 +137,19 @@ console.log("\n🧪 Running Personalized Electives Management TDD Tests...\n");
   assert.strictEqual(grouped["Chirurgia ogólna"], undefined, "Nie powinien zawierać przedmiotów niebędących fakultetami");
   console.log("✅ [PASS] collectAllElectiveSlots prawidłowo agreguje i grupuje fakultety z planu.");
 
+  // --- Test 6: Baner dismissal persistence & restore reset ---
+  console.log("\n-- Test 6: isElectivesBannerDismissed i setElectivesBannerDismissed");
+  const { isElectivesBannerDismissed, setElectivesBannerDismissed } = app;
+  assert.strictEqual(isElectivesBannerDismissed("wmw_sem_7", "gr. 1"), false, "Domyślnie baner nie jest dismissed");
+
+  setElectivesBannerDismissed("wmw_sem_7", "gr. 1", true);
+  assert.strictEqual(isElectivesBannerDismissed("wmw_sem_7", "gr. 1"), true, "Po dismiss baner ma status dismissed");
+  assert.strictEqual(isElectivesBannerDismissed("wmw_sem_7", "gr. 2"), false, "Status dismissed jest izolowany per grupa");
+
+  restoreAllElectiveSlots("wmw_sem_7", "gr. 1");
+  assert.strictEqual(isElectivesBannerDismissed("wmw_sem_7", "gr. 1"), false, "Po restoreAllElectiveSlots baner dismissal jest resetowany");
+  console.log("✅ [PASS] Baner dismissal jest trwały w localStorage i resetuje się przy przywróceniu.");
+
   console.log("\n🎉 Wszystkie testy Personalized Electives zakończone sukcesem (100% PASS)!\n");
   process.exit(0);
 })().catch(err => {

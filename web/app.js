@@ -164,6 +164,7 @@ const state = {
   userVotes: new Set(),
   hiddenElectiveSlots: new Set(),
   showHiddenElectivesPreview: false,
+  dismissedElectivesBanner: false,
   dismissedDuplicatePlans: new Set(),
   dismissedModificationPlans: new Set(),
   theme: typeof localStorage !== "undefined" && (localStorage.getItem("sggw_theme") || localStorage.getItem("umg_theme"))
@@ -205,6 +206,7 @@ const elements = typeof document !== "undefined" ? {
   electivesBannerText: document.getElementById("electives-banner-text"),
   previewHiddenElectivesBtn: document.getElementById("preview-hidden-electives-btn"),
   manageElectivesBannerBtn: document.getElementById("manage-electives-banner-btn"),
+  dismissElectivesBannerBtn: document.getElementById("dismiss-electives-banner-btn"),
   loadingState: document.getElementById("loading-state"),
   emptyState: document.getElementById("empty-state"),
   noClassesState: document.getElementById("no-classes-state"),
@@ -625,6 +627,14 @@ function setupEventListeners() {
   if (elements.manageElectivesBannerBtn) {
     elements.manageElectivesBannerBtn.addEventListener("click", openElectivesModal);
   }
+  if (elements.dismissElectivesBannerBtn) {
+    elements.dismissElectivesBannerBtn.addEventListener("click", () => {
+      state.dismissedElectivesBanner = true;
+      setElectivesBannerDismissed(state.selectedPlanId, state.selectedGroup, true);
+      updateElectivesBannerUI();
+      showToast("Powiadomienie zostało ukryte. Dostęp do fakultetów znajdziesz w menu bocznym.");
+    });
+  }
   if (elements.previewHiddenElectivesBtn) {
     elements.previewHiddenElectivesBtn.addEventListener("click", () => {
       state.showHiddenElectivesPreview = !state.showHiddenElectivesPreview;
@@ -677,6 +687,24 @@ function setupEventListeners() {
     }
   });
 
+  // Modal background scroll lock synchronizer
+  function syncModalScrollLock() {
+    if (typeof document === "undefined" || !document.body) return;
+    const anyDialogOpen = Boolean(document.querySelector("dialog[open]"));
+    document.body.classList.toggle("modal-open", anyDialogOpen);
+  }
+
+  document.addEventListener("close", () => setTimeout(syncModalScrollLock, 10), true);
+  document.addEventListener("cancel", () => setTimeout(syncModalScrollLock, 10), true);
+
+  if (typeof MutationObserver !== "undefined") {
+    const dialogObserver = new MutationObserver(() => syncModalScrollLock());
+    const allDialogs = document.querySelectorAll("dialog");
+    allDialogs.forEach(d => {
+      dialogObserver.observe(d, { attributes: true, attributeFilter: ["open"] });
+    });
+  }
+
   // Global Escape key handler to close any active modal
   document.addEventListener("keydown", (e) => {
     if (e.key === "Escape") {
@@ -690,6 +718,7 @@ function setupEventListeners() {
       if (_EventsService && typeof _EventsService.closeEventModal === "function") {
         _EventsService.closeEventModal();
       }
+      setTimeout(syncModalScrollLock, 10);
     }
   });
 
@@ -1173,6 +1202,7 @@ function onPlanChange(planId, preferredGroup = null) {
     localStorage.removeItem("umg_selected_group");
     state.hiddenElectiveSlots = new Set();
     state.showHiddenElectivesPreview = false;
+    state.dismissedElectivesBanner = false;
     updateElectivesBannerUI();
     showEmptyState();
     return;
@@ -1270,6 +1300,7 @@ async function loadSchedule() {
     // Odczytanie ukrytych slotów fakultetów dla wybranej grupy
     state.hiddenElectiveSlots = loadHiddenElectiveSlots(state.selectedPlanId, state.selectedGroup);
     state.showHiddenElectivesPreview = false;
+    state.dismissedElectivesBanner = isElectivesBannerDismissed(state.selectedPlanId, state.selectedGroup);
     updateElectivesBannerUI();
 
     // Pobranie propozycji zmian społeczności z Supabase
@@ -2064,12 +2095,12 @@ function renderLessonCard(lesson, targetMonday = null) {
     if (approvedProp.new_room) displayRoom = escapeHtml(approvedProp.new_room);
     proposalBannerHtml = `
       <div class="proposal-banner approved" title="Przesunięto na podstawie potwierdzenia grupy (${approvedProp.votes_count}/10 głosów)">
-        <span>✨ Przesunięto decyzją grupy (${approvedProp.votes_count}/10)</span>
+        <span>Przesunięto decyzją grupy</span>
       </div>
     `;
   } else if (activeProp) {
     const hasVoted = state.userVotes && state.userVotes.has(activeProp.id);
-    const voteBtnText = hasVoted ? `✓ Poparto (${activeProp.votes_count}/10)` : `Popieram (+1) (${activeProp.votes_count}/10)`;
+    const voteBtnText = hasVoted ? `✓ Poparto (${activeProp.votes_count}/10)` : `Popieram (${activeProp.votes_count}/10)`;
     const voteBtnDisabled = hasVoted ? "disabled" : "";
     proposalBannerHtml = `
       <div class="proposal-banner">
@@ -2216,6 +2247,7 @@ function openCalendarModal() {
   } else {
     elements.calendarModal.classList.remove("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function closeCalendarModal() {
@@ -2225,6 +2257,7 @@ function closeCalendarModal() {
   } else {
     elements.calendarModal.classList.add("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function openAboutModal() {
@@ -2234,6 +2267,7 @@ function openAboutModal() {
   } else {
     elements.aboutModal.classList.remove("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function closeAboutModal() {
@@ -2243,6 +2277,7 @@ function closeAboutModal() {
   } else {
     elements.aboutModal.classList.add("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function copyCalendarUrl() {
@@ -2302,6 +2337,7 @@ function openProposeModal(lessonData) {
   } else {
     elements.proposeDialog.classList.remove("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function closeProposeModal() {
@@ -2311,6 +2347,7 @@ function closeProposeModal() {
   } else {
     elements.proposeDialog.classList.add("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
   state.currentProposeLesson = null;
 }
 
@@ -2460,6 +2497,40 @@ function showToast(message, actionText = null, actionCallback = null) {
 // Personalized Electives Management Handlers (Per-slot hiding)
 // ==========================================================================
 const ELECTIVES_STORAGE_KEY = "plan_wmw_hidden_elective_slots";
+const ELECTIVES_DISMISSED_KEY = "plan_wmw_electives_banner_dismissed";
+
+function isElectivesBannerDismissed(planId, groupName) {
+  if (typeof localStorage === "undefined" || !planId) return false;
+  try {
+    const raw = localStorage.getItem(ELECTIVES_DISMISSED_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    const scope = getElectiveStorageScopeKey(planId, groupName);
+    return Boolean(data && data[scope]);
+  } catch (e) {
+    return false;
+  }
+}
+
+function setElectivesBannerDismissed(planId, groupName, dismissed) {
+  if (typeof localStorage === "undefined" || !planId) return;
+  try {
+    let data = {};
+    const raw = localStorage.getItem(ELECTIVES_DISMISSED_KEY);
+    if (raw) {
+      try { data = JSON.parse(raw) || {}; } catch (e) { data = {}; }
+    }
+    const scope = getElectiveStorageScopeKey(planId, groupName);
+    if (dismissed) {
+      data[scope] = true;
+    } else {
+      delete data[scope];
+    }
+    localStorage.setItem(ELECTIVES_DISMISSED_KEY, JSON.stringify(data));
+  } catch (e) {
+    console.debug("Błąd zapisu dismissed electives banner do localStorage:", e);
+  }
+}
 
 function getElectiveSlotKey(lesson) {
   if (!lesson) return "";
@@ -2530,6 +2601,8 @@ function restoreAllElectiveSlots(planId = null, groupName = null) {
   if (!targetPlan) return;
 
   state.hiddenElectiveSlots = new Set();
+  state.dismissedElectivesBanner = false;
+  setElectivesBannerDismissed(targetPlan, targetGroup, false);
   saveHiddenElectiveSlots(targetPlan, targetGroup, state.hiddenElectiveSlots);
   updateElectivesBannerUI();
 }
@@ -2593,7 +2666,7 @@ function updateElectivesBannerUI() {
   }
 
   if (elements.electivesBanner) {
-    if (hiddenCount > 0) {
+    if (hiddenCount > 0 && !state.dismissedElectivesBanner) {
       if (elements.electivesBannerText) {
         const word = hiddenCount === 1 ? "termin fakultetu" : (hiddenCount < 5 ? "terminy fakultetów" : "terminów fakultetów");
         elements.electivesBannerText.textContent = `Ukryto ${hiddenCount} ${word} w tym planie`;
@@ -2617,6 +2690,7 @@ function openElectivesModal() {
   } else {
     elements.electivesDialog.classList.remove("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function closeElectivesModal() {
@@ -2626,6 +2700,7 @@ function closeElectivesModal() {
   } else {
     elements.electivesDialog.classList.add("hidden");
   }
+  if (typeof syncModalScrollLock === "function") syncModalScrollLock();
 }
 
 function renderElectivesModalList() {
@@ -3030,6 +3105,8 @@ if (typeof module !== "undefined" && module.exports) {
     getElectiveSlotKey,
     loadHiddenElectiveSlots,
     saveHiddenElectiveSlots,
+    isElectivesBannerDismissed,
+    setElectivesBannerDismissed,
     toggleElectiveSlotHidden,
     restoreAllElectiveSlots,
     collectAllElectiveSlots,
