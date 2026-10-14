@@ -48,5 +48,54 @@
     { "name": "Letnia sesja poprawkowa IV", "type": "exam", "start": "2027-07-05", "end": "2027-07-09" },
     { "name": "Okres zajęć dydaktycznych – semestr zimowy", "type": "teaching", "start": "2026-10-01", "end": "2027-01-31" },
     { "name": "Okres zajęć dydaktycznych – semestr letni", "type": "teaching", "start": "2027-03-01", "end": "2027-06-22" }
-  ]
+  ],
+  "metadata": {
+    "source": "Zarządzenie Nr 74 Rektora Szkoły Głównej Gospodarstwa Wiejskiego w Warszawie z dnia 29 czerwca 2026 r.",
+    "document": "data/zarzadzenie_74_sggw_2026_2027.pdf",
+    "inauguration": "2026-10-07",
+    "winterDiplomaDeadline": "2027-02-19"
+  },
+  "partTimeSchedule": {
+    "winterSessions": [
+      { "session": 1, "start": "2026-10-02", "end": "2026-10-04", "dates": "2-4 października 2026" },
+      { "session": 2, "start": "2026-10-09", "end": "2026-10-11", "dates": "9-11 października 2026" },
+      { "session": 3, "start": "2026-10-16", "end": "2026-10-18", "dates": "16-18 października 2026" },
+      { "session": 4, "start": "2026-10-23", "end": "2026-10-25", "dates": "23-25 października 2026" },
+      { "session": 5, "start": "2026-11-06", "end": "2026-11-08", "dates": "6-8 listopada 2026" },
+      { "session": 6, "start": "2026-11-13", "end": "2026-11-15", "dates": "13-15 listopada 2026" },
+      { "session": 7, "start": "2026-11-20", "end": "2026-11-22", "dates": "20-22 listopada 2026" },
+      { "session": 8, "start": "2026-11-27", "end": "2026-11-29", "dates": "27-29 listopada 2026" },
+      { "session": 9, "start": "2026-12-04", "end": "2026-12-06", "dates": "4-6 grudnia 2026" },
+      { "session": 10, "start": "2026-12-11", "end": "2026-12-13", "dates": "11-13 grudnia 2026" },
+      { "session": 11, "start": "2026-12-18", "end": "2026-12-20", "dates": "18-20 grudnia 2026" },
+      { "session": 12, "start": "2027-01-08", "end": "2027-01-10", "dates": "8-10 stycznia 2027" },
+      { "session": 13, "start": "2027-01-15", "end": "2027-01-17", "dates": "15-17 stycznia 2027" },
+      { "session": 14, "start": "2027-01-22", "end": "2027-01-24", "dates": "22-24 stycznia 2027" }
+    ],
+    "winterExams": [
+      { "session": 1, "start": "2027-01-29", "end": "2027-01-31", "dates": "29-31 stycznia 2027" },
+      { "session": 2, "start": "2027-02-12", "end": "2027-02-14", "dates": "12-14 lutego 2027" }
+    ],
+    "summerSessions": [
+      { "session": 1, "start": "2027-03-05", "end": "2027-03-07", "dates": "5-7 marca 2027" },
+      { "session": 2, "start": "2027-03-12", "end": "2027-03-14", "dates": "12-14 marca 2027" },
+      { "session": 3, "start": "2027-03-19", "end": "2027-03-21", "dates": "19-21 marca 2027" },
+      { "session": 4, "start": "2027-04-02", "end": "2027-04-04", "dates": "2-4 kwietnia 2027" },
+      { "session": 5, "start": "2027-04-09", "end": "2027-04-11", "dates": "9-11 kwietnia 2027" },
+      { "session": 6, "start": "2027-04-16", "end": "2027-04-18", "dates": "16-18 kwietnia 2027" },
+      { "session": 7, "start": "2027-04-23", "end": "2027-04-25", "dates": "23-25 kwietnia 2027" },
+      { "session": 8, "start": "2027-05-07", "end": "2027-05-09", "dates": "7-9 maja 2027" },
+      { "session": 9, "start": "2027-05-21", "end": "2027-05-23", "dates": "21-23 maja 2027" },
+      { "session": 10, "start": "2027-05-28", "end": "2027-05-30", "dates": "28-30 maja 2027" },
+      { "session": 11, "start": "2027-06-04", "end": "2027-06-06", "dates": "4-6 czerwca 2027" },
+      { "session": 12, "start": "2027-06-11", "end": "2027-06-13", "dates": "11-13 czerwca 2027" },
+      { "session": 13, "start": "2027-06-18", "end": "2027-06-20", "dates": "18-20 czerwca 2027" },
+      { "session": 14, "start": "2027-06-25", "end": "2027-06-27", "dates": "25-27 czerwca 2027" }
+    ],
+    "summerExams": [
+      { "session": 1, "start": "2027-07-02", "end": "2027-07-04", "dates": "2-4 lipca 2027" },
+      { "session": 2, "start": "2027-07-09", "end": "2027-07-11", "dates": "9-11 lipca 2027" },
+      { "session": 3, "start": "2027-07-16", "end": "2027-07-18", "dates": "16-18 lipca 2027" }
+    ]
+  }
 }
