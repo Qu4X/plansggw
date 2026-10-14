@@ -94,7 +94,16 @@ function create(academicCalendar, options = {}) {
     }
 
     try {
-      const [year, month, day] = lesson.data_start.split("-").map(Number);
+      let rawStart = lesson.data_start;
+      if (lesson.polowa_sem === 2 && (!rawStart || rawStart <= "2026-10-01")) {
+        rawStart = "2026-11-23";
+      } else if (lesson.od_tyg && lesson.od_tyg > 1 && (!rawStart || rawStart <= "2026-10-01")) {
+        const baseMon = new Date(2026, 9, 5);
+        baseMon.setDate(baseMon.getDate() + (lesson.od_tyg - 1) * 7);
+        rawStart = formatDateISO(baseMon);
+      }
+
+      const [year, month, day] = rawStart.split("-").map(Number);
       const startDate = new Date(year, month - 1, day);
       if (isNaN(startDate.getTime())) {
         return { active: true, meetingNum: 1, total: lesson.tygodnie || 15 };

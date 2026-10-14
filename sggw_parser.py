@@ -4,6 +4,7 @@ Parser siatki planów zajęć SGGW z arkuszy Excel (.xlsx).
 import re
 import os
 import logging
+from datetime import datetime, timedelta
 from typing import Dict, List, Optional, Tuple, Any, Union
 import openpyxl
 
@@ -282,17 +283,29 @@ def parse_sggw_excel(wb_or_path: Union[str, openpyxl.Workbook]) -> Dict[str, Dic
             co_ile = 1
             od_tyg = 1
             polowa_sem = None
-            if "1-5 tydzień" in content or "1-5 tyg" in content:
-                weeks = 5
-            elif "od 6 tygodnia" in content:
-                weeks = 10
-                od_tyg = 6
-            elif "1. poł semestru" in content or "1 poł sem" in content:
+            data_start = "2026-10-01"
+
+            m_range_tyg = re.search(r'1\s*-\s*(\d+)\s*tydz', content, re.IGNORECASE)
+            m_od_tyg = re.search(r'od\s*(\d+)\s*tygodnia', content, re.IGNORECASE)
+
+            if m_range_tyg:
+                weeks = int(m_range_tyg.group(1))
+                data_start = "2026-10-01"
+            elif m_od_tyg:
+                od_tyg = int(m_od_tyg.group(1))
+                weeks = max(1, 15 - od_tyg + 1)
+                # Obliczenie daty startu: poniedziałek 1. tygodnia to 2026-10-05
+                base_mon = datetime(2026, 10, 5)
+                start_dt = base_mon + timedelta(days=(od_tyg - 1) * 7)
+                data_start = start_dt.strftime("%Y-%m-%d")
+            elif re.search(r'1[.\s]*poł(?:\.|owa)?\s*sem', content, re.IGNORECASE):
                 weeks = 7
                 polowa_sem = 1
-            elif "2 poł semestru" in content or "2 poł sem" in content:
+                data_start = "2026-10-01"
+            elif re.search(r'2[.\s]*poł(?:\.|owa)?\s*sem', content, re.IGNORECASE):
                 weeks = 8
                 polowa_sem = 2
+                data_start = "2026-11-23"
 
             lesson_dict = {
                 "przedmiot": subject,
@@ -302,7 +315,7 @@ def parse_sggw_excel(wb_or_path: Union[str, openpyxl.Workbook]) -> Dict[str, Dic
                 "sala": room or "brak sali",
                 "height": height,
                 "colspan": 1,
-                "data_start": "2026-10-01",
+                "data_start": data_start,
                 "tygodnie": weeks,
                 "co_ile": co_ile,
                 "od_tyg": od_tyg,

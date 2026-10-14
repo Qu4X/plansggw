@@ -105,6 +105,37 @@ class TestSGGWParser(unittest.TestCase):
         gr1_meat = [l for l in gr1_lessons if l.get("forma") == "cwiczenia" and "Badanie zwierząt" in l.get("przedmiot", "")]
         self.assertTrue(len(gr1_meat) > 0, f"Gr. 1 powinna mieć ćwiczenia z badania mięsa w poniedziałek: {gr1_lessons}")
 
+    def test_second_half_semester_and_week_restrictions(self):
+        if not os.path.exists(self.sample_xlsx):
+            self.skipTest(f"Plik fixture {self.sample_xlsx} nie istnieje")
+
+        parsed = parse_sggw_excel(self.sample_xlsx)
+        # 1. Środa: Molekularne podstawy (2 poł semestru)
+        sr_slots = parsed["gr. 1"]["ŚR"]
+        mol_lessons = []
+        for slot in sr_slots.values():
+            items = slot.values() if isinstance(slot, dict) and "przedmiot" not in slot else [slot]
+            for l in items:
+                if "Molekularne podstawy" in l.get("przedmiot", ""):
+                    mol_lessons.append(l)
+        self.assertTrue(len(mol_lessons) > 0, "Powinny istnieć zajęcia z Molekularnych podstaw")
+        self.assertEqual(mol_lessons[0].get("polowa_sem"), 2)
+        self.assertEqual(mol_lessons[0].get("data_start"), "2026-11-23")
+        self.assertEqual(mol_lessons[0].get("tygodnie"), 8)
+
+        # 2. Poniedziałek: Diagn. Obrazowa dużych zw (od 6 tygodnia)
+        pon_slots = parsed["gr. 1"]["PON"]
+        diag_lessons = []
+        for slot in pon_slots.values():
+            items = slot.values() if isinstance(slot, dict) and "przedmiot" not in slot else [slot]
+            for l in items:
+                if "Diagn. Obrazowa dużych zw" in l.get("przedmiot", ""):
+                    diag_lessons.append(l)
+        self.assertTrue(len(diag_lessons) > 0, "Powinny istnieć zajęcia z Diagn. Obrazowej dużych zw")
+        self.assertEqual(diag_lessons[0].get("od_tyg"), 6)
+        self.assertEqual(diag_lessons[0].get("data_start"), "2026-11-09")
+        self.assertEqual(diag_lessons[0].get("tygodnie"), 10)
+
 
 if __name__ == "__main__":
     unittest.main()

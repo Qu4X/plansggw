@@ -250,4 +250,24 @@ assert.ok(multiIndex["06/ambul b. 22"], "Sala 06/ambul b. 22 powinna być w inde
 assert.ok(multiIndex["s 105 b. 22"], "Sala s 105 b. 22 powinna być w indeksie");
 console.log("✅ [PASS] Zagnieżdżone sloty poprawnie rozpakowane w resolveWeekSchedule i buildScheduleIndex.");
 
+// --- Test 16: Zajęcia z 2. połowy semestru (polowa_sem = 2) i od N tygodnia ---
+console.log("\n-- Test 16: Zajęcia z 2. połowy semestru (polowa_sem = 2) i od N tygodnia");
+const secondHalfLesson = {
+  przedmiot: "Molekularne podstawy zdrowotnego oddziaływania pokarmu",
+  data_start: "2026-10-01",
+  tygodnie: 8,
+  polowa_sem: 2,
+  co_ile: 1
+};
+const monOct12 = new Date(2026, 9, 12); // Tydzień 2 (14.10)
+const resOct14 = engine.getLessonMeetingInfo(secondHalfLesson, "ŚR", monOct12, "2026-10-14");
+assert.strictEqual(resOct14.active, false, "Zajęcia z 2. połowy semestru nie mogą być aktywne w październiku (tydzień 2)");
+assert.strictEqual(resOct14.meetingNum, 0);
+
+const monNov23 = new Date(2026, 10, 23); // Tydzień 8 (25.11) - start 2. połowy
+const resNov25 = engine.getLessonMeetingInfo(secondHalfLesson, "ŚR", monNov23, "2026-11-25");
+assert.strictEqual(resNov25.active, true, "Zajęcia z 2. połowy semestru powinny być aktywne w tygodniu 8");
+assert.strictEqual(resNov25.meetingNum, 1);
+console.log("✅ [PASS] Zajęcia z 2. połowy semestru są nieaktywne w 1. połowie i aktywne od 8. tygodnia.");
+
 console.log("\n🎉 Wszystkie testy ScheduleEngine zakończone sukcesem (100% PASS)!\n");
