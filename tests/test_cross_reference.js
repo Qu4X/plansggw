@@ -369,7 +369,7 @@ console.log("\n-- Test 7: DataService (Cache, unieważnianie, fallback i onUpdat
   assert.strictEqual(data1.generated_at, "2026-09-24T20:00:00Z");
 
   // Sprawdzenie, czy zapisano w storage z poprawnym schematem
-  const cachedRaw = mockStorage.getItem("umg_cross_ref_cache");
+  const cachedRaw = mockStorage.getItem(CrossRef.DataService.CACHE_KEY);
   assert.ok(cachedRaw, "Cache powinien zostać zapisany w storage");
   const cachedParsed = JSON.parse(cachedRaw);
   assert.strictEqual(cachedParsed.schemaVersion, 1, "schemaVersion powinien wynosić 1");
@@ -406,18 +406,18 @@ console.log("\n-- Test 7: DataService (Cache, unieważnianie, fallback i onUpdat
   assert.strictEqual(updateDataReceived.generated_at, "2026-09-24T21:00:00Z", "onUpdate powinno dostać świeże dane");
 
   // Storage powinno mieć zaktualizowaną wersję
-  const updatedParsed = JSON.parse(mockStorage.getItem("umg_cross_ref_cache"));
+  const updatedParsed = JSON.parse(mockStorage.getItem(CrossRef.DataService.CACHE_KEY));
   assert.strictEqual(updatedParsed.data.generated_at, "2026-09-24T21:00:00Z");
 
   // 7c: Uszkodzony cache (niepoprawny JSON lub schemaVersion !== 1)
-  mockStorage.setItem("umg_cross_ref_cache", "corrupted-json{}}");
+  mockStorage.setItem(CrossRef.DataService.CACHE_KEY, "corrupted-json{}}");
   const dataRecovered = await CrossRef.DataService.load({
     storage: mockStorage,
     fetchFn: mockFetch
   });
   assert.ok(dataRecovered, "DataService powinien zignorować uszkodzony cache i pobrać świeże dane");
 
-  mockStorage.setItem("umg_cross_ref_cache", JSON.stringify({ schemaVersion: 999, data: {} }));
+  mockStorage.setItem(CrossRef.DataService.CACHE_KEY, JSON.stringify({ schemaVersion: 999, data: {} }));
   const dataWrongSchema = await CrossRef.DataService.load({
     storage: mockStorage,
     fetchFn: mockFetch

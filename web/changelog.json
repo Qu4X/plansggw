@@ -1,36 +1,15 @@
 [
   {
-    "version": "3.10.1",
-    "date": "2026-10-01",
+    "version": "1.0.0",
+    "date": "2026-10-14",
     "features": [
-      "Nowe, wygenerowane bezpośrednio z wektora ikony maskowalne PWA.",
-      "Ujednolicenie tła ikony ze splashscreenem (#0d233a) i eliminacja rozmycia na Androidzie 12+."
-    ]
-  },
-  {
-    "version": "3.10.0",
-    "date": "2026-10-01",
-    "features": [
-	  "Pełne wsparcie dla planów studiów niestacjonarnych (NST) oraz II stopnia.",
-      "Usprawniona wyszukiwarka wolnych sal uwzględniająca cykle 2-tygodniowe.",
-      "Nowy system Wydarzeń i Ogłoszeń Studenckich w planie zajęć.",
-      "Karty wydarzeń i okno szczegółów z mapą, opisem i linkami zewnętrznymi.",
-      "Automatyczne dodawanie wydarzeń przez zgłoszenia GitHub Issues.",
-	  "Zwiększony kontrast plakietek w trybie ciemnym (WCAG AA)."
-    ]
-  },
-  {
-    "version": "3.9.0",
-    "date": "2026-09-25",
-    "features": [
-      "Rozpoznawanie typu zajęć na podstawie oficjalnej siatki godzin.",
-      "Oznaczenie typu zajęć kolorami:\n🔵 Wykład\n🟢 Ćwiczenia\n🟣 Laboratorium\n🟠 Symulator",
-      "Eksperymentalna obsługa planów studiów niestacjonarnych (przełącznik w menu – funkcja w fazie testów).",
-      "Wstępna obsługa planów studiów II stopnia.",
-      "Alfabetyczne sortowanie listy kierunków w menu.",
-      "Poprawiony układ kafelków w widoku mobilnym.",
-      "Powiadomienia o aktualizacjach aplikacji.",
-      "Błędy lub pomysły na nowe funkcje?\nZgłoś je w menu O aplikacji."
+      "Oficjalny start Planu WMW dla Wydziału Medycyny Weterynaryjnej SGGW w Warszawie.",
+      "Nowy dedykowany branding i szata graficzna w barwach SGGW (#12322a).",
+      "Pobieranie i synchronizacja planów zajęć bezpośrednio z arkuszy Excel WMW SGGW.",
+      "Inteligentna detekcja sal, audytoriów (Nowy Rektorat, Wolica, Klinika Koni, Katedry), form zajęć i wykładowców.",
+      "Obsługa podziałów semestralnych (1. i 2. połowa semestru) oraz cykli tygodniowych (A / B).",
+      "Eksport planu do kalendarzy Apple / Google / Outlook (.ics) z uwzględnieniem kalendarza akademickiego SGGW.",
+      "Wyszukiwarka wolnych sal, harmonogramów wykładowców i planów przedmiotów."
     ]
   }
 ]

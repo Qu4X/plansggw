@@ -1,10 +1,10 @@
 {
-  "name": "Plan Zajęć SGGW",
-  "short_name": "Plan SGGW",
-  "id": "/plansggw/",
-  "description": "Szybki, nowoczesny i czytelny plan zajęć dla studentów Szkoły Głównej Gospodarstwa Wiejskiego w Warszawie.",
-  "start_url": "/plansggw/index.html",
-  "scope": "/plansggw/",
+  "name": "Plan WMW — Medycyna Weterynaryjna SGGW",
+  "short_name": "Plan WMW",
+  "id": "/planwmw/",
+  "description": "Szybki, nowoczesny i czytelny plan zajęć dla studentów Wydziału Medycyny Weterynaryjnej SGGW w Warszawie.",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "display_override": ["window-controls-overlay", "standalone", "minimal-ui", "browser"],
   "prefer_related_applications": false,
@@ -39,14 +39,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Plan zajęć SGGW - widok na komputerze"
+      "label": "Plan zajęć WMW SGGW - widok na komputerze"
     },
     {
       "src": "screenshot-mobile.png",
       "sizes": "720x1280",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Plan zajęć SGGW - widok na telefonie"
+      "label": "Plan zajęć WMW SGGW - widok na telefonie"
     }
   ]
 }

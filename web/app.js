@@ -396,6 +396,7 @@ function setupEventListeners() {
     elements.daysViewSelect.value = state.daysView;
     elements.daysViewSelect.addEventListener("change", (e) => {
       state.daysView = e.target.value;
+      localStorage.setItem("sggw_days_view", state.daysView);
       localStorage.setItem("umg_days_view", state.daysView);
       if (state.daysView === "workdays" && (state.selectedDayTab === "SOB" || state.selectedDayTab === "ND")) {
         state.selectedDayTab = "PON";
@@ -737,8 +738,8 @@ async function loadPlans() {
     }
 
     // Restore saved selections from localStorage
-    const savedPlan = localStorage.getItem("umg_selected_plan");
-    const savedGroup = localStorage.getItem("umg_selected_group");
+    const savedPlan = localStorage.getItem("sggw_selected_plan") || localStorage.getItem("umg_selected_plan");
+    const savedGroup = localStorage.getItem("sggw_selected_group") || localStorage.getItem("umg_selected_group");
 
     if (savedPlan && state.plansData.plans[savedPlan]) {
       const planObj = state.plansData.plans[savedPlan];
@@ -822,7 +823,9 @@ function parsePlanInfo(rawName) {
 function getShortPlanCode(planName) {
   if (!planName) return "";
   let major = "";
-  if (/Transport Morski/i.test(planName)) {
+  if (/Weterynaria/i.test(planName)) {
+    major = "WET";
+  } else if (/Transport Morski/i.test(planName)) {
     major = "TM";
   } else if (/Transport i Logistyka/i.test(planName)) {
     major = "TiL";
@@ -998,12 +1001,14 @@ function getPlanModificationInfo(planId) {
 
 function onStudyModeChange(newMode) {
   state.studyMode = newMode;
+  localStorage.setItem("sggw_study_mode", newMode);
   localStorage.setItem("umg_study_mode", newMode);
 
   // W trybie niestacjonarnym domyślnie sugerujemy "Tylko dni z zajęciami"
   if (newMode === "niestacjonarne" && state.daysView === "workdays") {
     state.daysView = "active_only";
     if (elements.daysViewSelect) elements.daysViewSelect.value = "active_only";
+    localStorage.setItem("sggw_days_view", "active_only");
     localStorage.setItem("umg_days_view", "active_only");
   }
 
@@ -1024,12 +1029,15 @@ function onPlanChange(planId, preferredGroup = null) {
     elements.groupSelect.disabled = true;
     elements.groupSelect.innerHTML = '<option value="">Najpierw wybierz kierunek...</option>';
     elements.headerActiveGroup.textContent = "Wybierz grupę";
+    localStorage.removeItem("sggw_selected_plan");
     localStorage.removeItem("umg_selected_plan");
+    localStorage.removeItem("sggw_selected_group");
     localStorage.removeItem("umg_selected_group");
     showEmptyState();
     return;
   }
 
+  localStorage.setItem("sggw_selected_plan", planId);
   localStorage.setItem("umg_selected_plan", planId);
   const plan = state.plansData.plans[planId];
 
@@ -1082,6 +1090,7 @@ function onPlanChange(planId, preferredGroup = null) {
 
 function selectGroup(groupName) {
   state.selectedGroup = groupName;
+  localStorage.setItem("sggw_selected_group", groupName);
   localStorage.setItem("umg_selected_group", groupName);
   elements.groupSelect.value = groupName;
 
@@ -1218,7 +1227,7 @@ function resolveInitialWeekOffset(scheduleData) {
   }
 }
 
-// Calculate semester week or special periods based on UMG academic calendar
+// Calculate semester week or special periods based on SGGW academic calendar
 function getAcademicInfoForWeek(targetMonday) {
   const targetSunday = new Date(targetMonday);
   targetSunday.setDate(targetMonday.getDate() + 6);

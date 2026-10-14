@@ -270,7 +270,7 @@
   };
 
   // --- Warstwa zarządzania danymi (CrossRef.DataService) ---
-  const CACHE_KEY = "umg_cross_ref_cache";
+  const CACHE_KEY = "sggw_cross_ref_cache";
   const SCHEMA_VERSION = 1;
 
   const DataService = {
@@ -287,17 +287,21 @@
 
       if (storage) {
         try {
-          const raw = storage.getItem(CACHE_KEY);
+          const raw = storage.getItem(CACHE_KEY) || storage.getItem("umg_cross_ref_cache");
           if (raw) {
             const parsed = JSON.parse(raw);
             if (parsed && parsed.schemaVersion === SCHEMA_VERSION && parsed.data) {
               cachedData = parsed.data;
             } else {
               storage.removeItem(CACHE_KEY);
+              try { storage.removeItem("umg_cross_ref_cache"); } catch (_) {}
             }
           }
         } catch (e) {
-          try { storage.removeItem(CACHE_KEY); } catch (_) {}
+          try {
+            storage.removeItem(CACHE_KEY);
+            storage.removeItem("umg_cross_ref_cache");
+          } catch (_) {}
         }
       }
 

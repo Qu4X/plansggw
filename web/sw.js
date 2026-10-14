@@ -1,5 +1,5 @@
-// Service Worker for Plan WN PWA
-const CACHE_NAME = 'plan-umg-v3.10.1';
+// Service Worker for Plan WMW PWA
+const CACHE_NAME = 'plan-wmw-v1.0.0';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -16,7 +16,7 @@ const STATIC_ASSETS = [
   './screenshot-mobile.png',
   './apple-touch-icon.png',
   './monochrome.svg',
-  './planwn.svg'
+  './plansggw.svg'
 ];
 
 self.addEventListener('install', (event) => {

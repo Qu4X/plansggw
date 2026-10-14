@@ -18,7 +18,7 @@ DIST_DIR = os.path.join(REPO_ROOT, "dist")
 def get_current_version() -> str:
     with open(PACKAGE_JSON, "r", encoding="utf-8") as f:
         data = json.load(f)
-        return data.get("version", "3.10.0")
+        return data.get("version", "1.0.0")
 
 
 def sync_version(version: str = None) -> str:
@@ -32,7 +32,7 @@ def sync_version(version: str = None) -> str:
             sw_content = f.read()
         sw_updated = re.sub(
             r"const CACHE_NAME = ['\"][^'\"]+['\"];",
-            f"const CACHE_NAME = 'plan-umg-v{ver}';",
+            f"const CACHE_NAME = 'plan-wmw-v{ver}';",
             sw_content
         )
         with open(sw_path, "w", encoding="utf-8") as f:

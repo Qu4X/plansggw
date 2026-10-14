@@ -1,5 +1,5 @@
 """
-Domain data models and TypedDicts for Plan WN.
+Domain data models and TypedDicts for Plan WMW SGGW.
 Provides strict contracts between scraper, parsers, and static build indexers.
 """
 from typing import TypedDict, Optional, List, Dict, Any

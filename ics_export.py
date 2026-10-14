@@ -17,7 +17,7 @@ WEEKDAY_TO_CODE = {0: "PON", 1: "WT", 2: "ŚR", 3: "CZW", 4: "PT", 5: "SOB", 6: 
 
 
 def load_academic_calendar(path: Optional[str] = None) -> Dict[str, Any]:
-    """Wczytuje konfigurację kalendarza akademickiego UMG z academic_calendar.json"""
+    """Wczytuje konfigurację kalendarza akademickiego SGGW z academic_calendar.json"""
     target_path = path or ACADEMIC_CALENDAR_PATH
     if os.path.exists(target_path):
         try:
@@ -70,9 +70,9 @@ def generuj_ics(dane_planu: Dict[str, Any], nazwa_grupy: str, academic_calendar:
     day_swaps = academic_calendar.get("daySwaps", {}) if academic_calendar else {}
 
     cal = Calendar()
-    cal.add('prodid', f'-//UMG Navigator//{nazwa_grupy}//')
+    cal.add('prodid', f'-//Plan WMW SGGW//{nazwa_grupy}//')
     cal.add('version', '2.0')
-    cal.add('x-wr-calname', f'Plan {nazwa_grupy}')  # Automatyczna nazwa w apce
+    cal.add('x-wr-calname', f'Plan WMW {nazwa_grupy}')  # Automatyczna nazwa w apce
     cal.add('x-wr-timezone', 'Europe/Warsaw')
 
     def _dodaj_event(info: LessonDict, base_day: str) -> None:
@@ -150,7 +150,7 @@ def generuj_ics(dane_planu: Dict[str, Any], nazwa_grupy: str, academic_calendar:
 
                             clean_subj = re.sub(r'[^a-zA-Z0-9_-]', '_', info.get('raw_przedmiot') or info['przedmiot'])
                             uid = (f"{nazwa_grupy}_{event_start.strftime('%Y%m%dT%H%M%S')}"
-                                   f"_{clean_subj}@umg.edu.pl")
+                                   f"_{clean_subj}@sggw.edu.pl")
                             event.add('uid', uid)
                             event.add('dtstamp', datetime.now(timezone.utc))
 
@@ -196,9 +196,9 @@ def generate_nst_ics(nst_group_schedule: Dict[str, List[Dict[str, Any]]], group_
     nst_group_schedule: {"2026-10-01": [lesson1, lesson2, ...], ...}
     """
     cal = Calendar()
-    cal.add('prodid', '-//Plan Zajec WN UMG (Niestacjonarne)//umg.edu.pl//')
+    cal.add('prodid', '-//Plan Zajec WMW SGGW (Niestacjonarne)//sggw.edu.pl//')
     cal.add('version', '2.0')
-    cal.add('x-wr-calname', f"Plan WN (NST) - {group_name}")
+    cal.add('x-wr-calname', f"Plan WMW (NST) - {group_name}")
     cal.add('x-wr-timezone', 'Europe/Warsaw')
 
     for date_iso, lessons in nst_group_schedule.items():
@@ -229,7 +229,7 @@ def generate_nst_ics(nst_group_schedule: Dict[str, List[Dict[str, Any]]], group_
                 event.add('dtend', dt_end)
 
                 clean_subj = re.sub(r'[^\w]', '', subj)[:20]
-                uid = f"nst_{group_name}_{date_iso}_{sh:02d}{sm:02d}_{clean_subj}@umg.edu.pl"
+                uid = f"nst_{group_name}_{date_iso}_{sh:02d}{sm:02d}_{clean_subj}@sggw.edu.pl"
                 event.add('uid', uid)
                 event.add('dtstamp', datetime.now(timezone.utc))
 

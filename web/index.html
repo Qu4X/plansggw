@@ -3,20 +3,18 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Plan Zajęć SGGW</title>
-  <link rel="stylesheet" href="style.css?v=3.10.1">
-  <link rel="icon"
-    href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌿</text></svg>">
-  <link rel="manifest" href="manifest.json?v=3.10.1">
+  <title>Plan WMW — Plan Zajęć Medycyny Weterynaryjnej SGGW</title>
+  <link rel="stylesheet" href="style.css?v=1.0.0">
+  <link rel="icon" type="image/svg+xml" href="plansggw.svg">
+  <link rel="manifest" href="manifest.json?v=1.0.0">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Plan SGGW">
+  <meta name="apple-mobile-web-app-title" content="Plan WMW">
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="color-scheme" content="light dark">
   <meta name="theme-color" content="#12322a">
-  <meta name="description" content="Szybki, nowoczesny i czytelny plan zajęć dla studentów SGGW.">
+  <meta name="description" content="Szybki, nowoczesny i czytelny plan zajęć dla studentów Wydziału Medycyny Weterynaryjnej SGGW.">
   <script>
     window.deferredPrompt = null;
     window.addEventListener('beforeinstallprompt', function (e) {
@@ -115,7 +113,7 @@
         <div class="brand">
           <img src="plansggw.svg" class="brand-logo" width="32" height="32" alt="" aria-hidden="true" fetchpriority="high" decoding="async">
           <div class="brand-titles">
-            <h1>Plan Zajęć SGGW</h1>
+            <h1>Plan WMW</h1>
             <span class="header-group-badge" id="header-active-group">Wybierz grupę</span>
           </div>
         </div>
@@ -448,12 +446,12 @@
         </button>
       </div>
       <div class="modal-body ios-install-body" id="pwa-install-body">
-        <p>Zainstaluj Plan WN na swoim urządzeniu, aby mieć błyskawiczny dostęp jak do natywnej aplikacji:</p>
+        <p>Zainstaluj Plan WMW na swoim urządzeniu, aby mieć błyskawiczny dostęp jak do natywnej aplikacji:</p>
         <ol class="ios-install-steps">
           <li>
             <span class="step-num">1</span>
             <div class="step-desc">
-              Kliknij menu z trzema kropkami (<strong>⋮</strong>) w prawym górnym rogu przeglądarki Chrome.
+              Kliknij menu z trzema kropkami (<strong>⋮</strong>) lub ikonę udostępniania w przeglądarce.
             </div>
           </li>
           <li>
@@ -468,7 +466,7 @@
           <li>
             <span class="step-num">3</span>
             <div class="step-desc">
-              Potwierdź klikając <strong>„Zainstaluj”</strong>. Ikona kotwicy ⚓ pojawi się na pulpicie.
+              Potwierdź klikając <strong>„Zainstaluj”</strong>. Ikona Plan WMW pojawi się na pulpicie.
             </div>
           </li>
         </ol>
@@ -565,7 +563,7 @@
       <div class="modal-header">
         <div class="modal-header-titles">
           <span class="cross-modal-badge">Informacja</span>
-          <h3 id="about-modal-title">O aplikacji Plan WN</h3>
+          <h3 id="about-modal-title">O aplikacji Plan WMW</h3>
         </div>
         <button id="close-about-modal" class="btn-close" aria-label="Zamknij">
           <svg class="icon" aria-hidden="true">
@@ -576,11 +574,11 @@
       <div class="modal-body about-modal-body">
         <div class="about-card about-intro">
           <div class="about-logo-badge">
-            <img src="planwn.svg" width="36" height="36" alt="" aria-hidden="true" style="display: block;">
+            <img src="plansggw.svg" width="36" height="36" alt="" aria-hidden="true" style="display: block;">
           </div>
           <div>
-            <h4 style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">Plan Zajęć WN</h4>
-            <p class="subtext" style="margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.8rem;">Wersja PWA v3.10.1
+            <h4 style="margin: 0; font-size: 1.1rem; color: var(--text-primary);">Plan WMW</h4>
+            <p class="subtext" style="margin: 0.2rem 0 0; color: var(--text-muted); font-size: 0.8rem;">Wersja PWA v1.0.0
             </p>
           </div>
         </div>
@@ -589,12 +587,7 @@
           <div class="about-grid-col">
             <div class="about-section">
               <h5>O projekcie</h5>
-              <p>Aplikacja powstała dla studentów jako szybka, responsywna i działająca offline alternatywa dla
-                klasycznego
-                planu. Dane pobierane są z publicznie dostępnego oficjalnego systemu <a
-                  href="https://arktur.umg.edu.pl/planyzaj/strpza5.php" target="_blank"
-                  rel="noopener">arktur.umg.edu.pl</a>
-                i odświeżane codziennie rano.</p>
+              <p>Aplikacja powstała dla studentów Wydziału Medycyny Weterynaryjnej Szkoły Głównej Gospodarstwa Wiejskiego w Warszawie (SGGW) jako szybka, responsywna i działająca offline alternatywa dla przeglądania siatek zajęć. Dane pobierane są z oficjalnych arkuszy planów i synchronizowane z kalendarzem akademickim.</p>
             </div>
 
             <div class="about-section" style="margin-top: 1rem;">
@@ -609,13 +602,6 @@
                   </svg>
                   <span>Formularz zgłoszeń</span>
                 </a>
-                <a href="https://github.com/Qu4X/planwn/issues/new" target="_blank" rel="noopener"
-                  class="btn-about-action">
-                  <svg class="icon" style="width: 1.15em; height: 1.15em;" aria-hidden="true">
-                    <use href="#icon-github"></use>
-                  </svg>
-                  <span>Zgłoś na GitHubie</span>
-                </a>
               </div>
             </div>
           </div>
@@ -623,13 +609,12 @@
           <div class="about-grid-col">
             <div class="about-support-card">
               <div class="support-card-header">
-                <span class="support-icon">🍺</span>
+                <span class="support-icon">☕</span>
                 <h5>Podoba Ci się aplikacja?</h5>
               </div>
-              <p class="support-description">Możesz wesprzeć dalszy rozwój projektu i postawić autorowi wirtualnego
-                browara!</p>
+              <p class="support-description">Możesz wesprzeć dalszy rozwój projektu i postawić autorowi wirtualną kawę!</p>
               <a href="https://cuplink.to/qu4x" target="_blank" rel="noopener" class="btn-cuplink">
-                <span>🍺 Postaw browara na cuplink.to</span>
+                <span>☕ Postaw kawę na cuplink.to</span>
               </a>
             </div>
           </div>
@@ -638,31 +623,25 @@
         <div class="about-disclaimer">
           <h6>Zastrzeżenie prawne (Nota prawna)</h6>
           <p>Niniejsza aplikacja jest <strong>nieoficjalnym projektem studenckim / open-source</strong> i nie jest w
-            żaden sposób powiązana, autoryzowana, wspierana ani prowadzona przez <strong>Uniwersytet Morski w Gdyni
-              (UMG)</strong>.</p>
-          <p>Wszelkie nazwy własne, skróty i znaki (w tym „UMG” oraz „Uniwersytet Morski w Gdyni”) należą do ich
+            żaden sposób oficjalnie prowadzona ani autoryzowana przez <strong>Szkołę Główną Gospodarstwa Wiejskiego w Warszawie
+              (SGGW)</strong>.</p>
+          <p>Wszelkie nazwy własne, skróty i znaki (w tym „SGGW” oraz „Szkoła Główna Gospodarstwa Wiejskiego w Warszawie”) należą do ich
             prawnych właścicieli i zostały użyte wyłącznie w celach informacyjnych oraz identyfikacyjnych.</p>
-          <p>Dane pobierane są ze stron publicznych (<a href="https://arktur.umg.edu.pl/planyzaj/strpza5.php"
-              target="_blank" rel="noopener">arktur.umg.edu.pl</a>). Aplikacja udostępniana jest na zasadzie <em>„tak
-              jak jest” (as is)</em>. Jedynym oficjalnym i wiążącym źródłem informacji są komunikaty uczelni, dziekanaty
-            oraz system arktur.umg.edu.pl. Autor nie ponosi odpowiedzialności za ewentualne skutki wynikające z
-            rozbieżności lub opóźnień w synchronizacji.</p>
+          <p>Aplikacja udostępniana jest na zasadzie <em>„tak jak jest” (as is)</em>. Jedynym oficjalnym i wiążącym źródłem informacji są komunikaty uczelni, dziekanaty oraz oficjalne strony SGGW. Autor nie ponosi odpowiedzialności za ewentualne skutki wynikające z rozbieżności lub opóźnień w synchronizacji.</p>
         </div>
       </div>
     </div>
   </dialog>
 
   <footer class="app-footer">
-    <p>Projekt nieoficjalny dla studentów WN. Dane pobierane z <a href="https://arktur.umg.edu.pl/planyzaj/strpza5.php"
-        target="_blank" rel="noopener">arktur.umg.edu.pl</a>. • <button id="footer-about-btn" class="footer-link-btn">O
-        aplikacji</button></p>
+    <p>Projekt nieoficjalny dla studentów Wydziału Medycyny Weterynaryjnej SGGW. • <button id="footer-about-btn" class="footer-link-btn">O aplikacji</button></p>
   </footer>
 
   <script async src="https://tally.so/widgets/embed.js"></script>
-  <script src="js/schedule-engine.js?v=3.10.1"></script>
-  <script src="js/cross-reference.js?v=3.10.1"></script>
-  <script src="js/events-service.js?v=3.10.1"></script>
-  <script src="app.js?v=3.10.1"></script>
+  <script src="js/schedule-engine.js?v=1.0.0"></script>
+  <script src="js/cross-reference.js?v=1.0.0"></script>
+  <script src="js/events-service.js?v=1.0.0"></script>
+  <script src="app.js?v=1.0.0"></script>
 </body>
 
 </html>
