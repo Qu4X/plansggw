@@ -239,12 +239,14 @@ const elements = typeof document !== "undefined" ? {
   footerAboutBtn: document.getElementById("footer-about-btn"),
   aboutModal: document.getElementById("about-modal"),
   closeAboutModalBtn: document.getElementById("close-about-modal"),
+  aboutOpenChangelogBtn: document.getElementById("about-open-changelog-btn"),
   reportMailBtn: document.getElementById("report-mail-btn"),
   changelogModal: document.getElementById("changelog-modal"),
   closeChangelogModalBtn: document.getElementById("close-changelog-modal"),
   confirmChangelogBtn: document.getElementById("confirm-changelog-btn"),
   changelogVersionBadge: document.getElementById("changelog-version-badge"),
   changelogDate: document.getElementById("changelog-date"),
+  changelogFeaturesList: document.getElementById("changelog-features-list"),
   eventDetailsDialog: document.getElementById("event-details-dialog"),
   closeEventDialogBtn: document.getElementById("close-event-dialog"),
   proposeDialog: document.getElementById("propose-dialog"),
@@ -566,6 +568,28 @@ function setupEventListeners() {
   if (elements.closeAboutModalBtn) {
     elements.closeAboutModalBtn.addEventListener("click", closeAboutModal);
   }
+  if (elements.aboutOpenChangelogBtn) {
+    elements.aboutOpenChangelogBtn.addEventListener("click", async () => {
+      closeAboutModal();
+      try {
+        const resp = await fetch("changelog.json");
+        if (resp.ok) {
+          const changelogs = await resp.json();
+          if (Array.isArray(changelogs) && changelogs.length > 0) {
+            openChangelogModal(changelogs[0]);
+            return;
+          }
+        }
+      } catch (err) {
+        console.debug("Nie udalo sie pobrac changelog.json:", err);
+      }
+      openChangelogModal({
+        version: "1.0.0",
+        date: "14 października 2026",
+        features: ["Oficjalny start Planu WMW."]
+      });
+    });
+  }
   if (elements.aboutModal) setupDialogBackdropDismiss(elements.aboutModal, closeAboutModal);
   if (elements.closeChangelogModalBtn) {
     elements.closeChangelogModalBtn.addEventListener("click", closeChangelogModal);
@@ -677,13 +701,16 @@ function setupEventListeners() {
     setupDialogBackdropDismiss(elements.electivesDialog, closeElectivesModal);
   }
 
-  // Fallback for Tally modal: if Tally embed script is blocked by adblockers, open form directly
+  // Tally modal click handler: close about-modal so Top Layer dialog does not obscure Tally popup
   document.addEventListener("click", (e) => {
     const tallyLink = e.target.closest("a[data-tally-open], a[href*='tally-open=']");
-    if (tallyLink && (!window.Tally || typeof window.Tally.openPopup !== "function")) {
-      e.preventDefault();
-      const formId = tallyLink.getAttribute("data-tally-open") || "VLRkgl";
-      window.open(`https://tally.so/r/${formId}`, "_blank", "noopener");
+    if (tallyLink) {
+      closeAboutModal();
+      if (!window.Tally || typeof window.Tally.openPopup !== "function") {
+        e.preventDefault();
+        const formId = tallyLink.getAttribute("data-tally-open") || "VLRkgl";
+        window.open(`https://tally.so/r/${formId}`, "_blank", "noopener");
+      }
     }
   });
 

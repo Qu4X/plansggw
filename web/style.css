@@ -1958,6 +1958,8 @@ dialog[open] {
   background: transparent;
   max-width: 480px;
   width: min(94vw, 480px);
+  max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
   margin: auto;
   inset: 0;
   color: var(--text-primary);
@@ -1984,6 +1986,13 @@ dialog[open] {
   margin: auto;
 }
 
+.modal-dialog.changelog-modal-dialog {
+  max-width: 540px;
+  width: min(94vw, 540px);
+  max-height: min(88dvh, 640px);
+  margin: auto;
+}
+
 .modal-dialog::backdrop {
   background: rgba(0, 0, 0, 0.5);
   backdrop-filter: blur(2px);
@@ -1999,6 +2008,37 @@ dialog[open] {
   overflow: hidden;
   animation: modalIn 0.2s ease-out;
   color: var(--text-primary);
+  max-height: calc(100vh - 2.5rem);
+  max-height: calc(100dvh - 2.5rem);
+}
+
+.changelog-modal-content {
+  width: 100%;
+  max-width: 100%;
+  max-height: min(88dvh, 640px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.changelog-modal-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 1.15rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.changelog-modal-footer {
+  padding: 0.85rem 1.25rem 1rem;
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-card);
+  flex-shrink: 0;
+  display: flex;
 }
 
 .changelog-version-header {
@@ -2007,10 +2047,11 @@ dialog[open] {
   justify-content: space-between;
   padding-bottom: 0.5rem;
   border-bottom: 1px dashed var(--border-subtle);
+  flex-shrink: 0;
 }
 
 .changelog-features-list-wrapper {
-  margin: 0.5rem 0;
+  margin: 0.25rem 0;
 }
 
 .changelog-features-list {
@@ -3073,6 +3114,33 @@ dialog[open] {
   background: var(--border-subtle);
   border-color: var(--brand-accent);
   transform: translateY(-1px);
+}
+
+.btn-about-action.btn-changelog-trigger {
+  background: var(--bg-card-subtle);
+  border: 1px solid var(--brand-accent);
+  color: var(--brand-primary);
+  font-weight: 700;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+[data-theme="dark"] .btn-about-action.btn-changelog-trigger {
+  background: rgba(52, 211, 153, 0.1);
+  border-color: var(--brand-accent);
+  color: var(--brand-accent);
+}
+
+.btn-about-action.btn-changelog-trigger:hover {
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+[data-theme="dark"] .btn-about-action.btn-changelog-trigger:hover {
+  background: var(--brand-accent);
+  color: #091713;
 }
 
 .btn-about-action.btn-tally-action {

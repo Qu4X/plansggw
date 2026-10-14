@@ -514,8 +514,8 @@
   </dialog>
 
   <!-- What's New / Changelog Modal -->
-  <dialog id="changelog-modal" class="modal-dialog" aria-labelledby="changelog-modal-title">
-    <div class="modal-dialog-content">
+  <dialog id="changelog-modal" class="modal-dialog changelog-modal-dialog" aria-labelledby="changelog-modal-title" closedby="any">
+    <div class="modal-content changelog-modal-content">
       <div class="modal-header">
         <div class="modal-header-titles">
           <span class="cross-modal-badge"
@@ -540,8 +540,10 @@
             <!-- Dynamic feature items -->
           </ul>
         </div>
+      </div>
+      <div class="changelog-modal-footer">
         <button id="confirm-changelog-btn" class="btn-primary"
-          style="width: 100%; justify-content: center; margin-top: 0.5rem;">
+          style="width: 100%; justify-content: center;">
           Super, rozumiem!
         </button>
       </div>
@@ -733,6 +735,12 @@
               <h5>Zgłaszanie uwag i błędów</h5>
               <p>Zauważyłeś brakującą grupę, błąd w planie lub masz pomysł na nową funkcję?</p>
               <div class="about-action-buttons">
+                <button type="button" id="about-open-changelog-btn" class="btn-about-action btn-changelog-trigger" aria-haspopup="dialog">
+                  <svg class="icon" style="width: 1.15em; height: 1.15em;" aria-hidden="true">
+                    <use href="#icon-celebration"></use>
+                  </svg>
+                  <span>Co nowego?</span>
+                </button>
                 <a href="https://tally.so/r/VLRkgl" target="_blank" rel="noopener" data-tally-open="VLRkgl"
                   data-tally-layout="modal" data-tally-emoji-animation="none" data-tally-auto-close="5000"
                   class="btn-about-action btn-tally-action">

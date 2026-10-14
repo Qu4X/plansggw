@@ -1,14 +1,15 @@
 [
   {
     "version": "1.0.0",
-    "date": "2026-10-14",
+    "date": "14 października 2026",
     "features": [
-      "Oficjalny start Planu WMW dla Wydziału Medycyny Weterynaryjnej SGGW w Warszawie.",
-      "Nowy dedykowany branding i szata graficzna w barwach SGGW (#12322a).",
-      "Pobieranie i synchronizacja planów zajęć bezpośrednio z arkuszy Excel WMW SGGW.",
-      "Inteligentna detekcja sal, audytoriów (Nowy Rektorat, Wolica, Klinika Koni, Katedry), form zajęć i wykładowców.",
-      "Obsługa podziałów semestralnych (1. i 2. połowa semestru) oraz cykli tygodniowych (A / B).",
-      "Eksport planu do kalendarzy Apple / Google / Outlook (.ics) z uwzględnieniem kalendarza akademickiego SGGW."
+      "Oficjalny start Planu WMW — nowoczesnego, responsywnego planu zajęć dla studentów Wydziału Medycyny Weterynaryjnej SGGW.",
+      "Głosowanie nad zmianami terminów (Community Edit) — studenci mogą proponować przesunięcia zajęć (jednorazowo lub na stałe). Po zebraniu 10 głosów grupy plan aktualizuje się automatycznie u wszystkich!",
+      "Personalizacja fakultetów — wybierasz tylko te terminy, na które faktycznie uczęszczasz. Pozostałe grupy możesz ukryć jednym kliknięciem z karty zajęć lub z poziomu panelu fakultetów.",
+      "Pełna synchronizacja z kalendarzem akademickim SGGW — automatyczne uwzględnianie dni rektorskich, przerw semestralnych i zamian dni (np. środa z planem piątku).",
+      "Subskrypcja kalendarzy (.ics) — automatyczny eksport do Apple Kalendarz, Google Calendar i Outlook z powiadomieniami o salach.",
+      "PWA & Działanie Offline — możliwość instalacji aplikacji na telefonie (Android, iOS) i komputerze; plan działa płynnie nawet bez dostępu do Internetu.",
+      "Wygodne zgłaszanie uwag i brakujących grup — wbudowany formularz w menu „O aplikacji” pozwalający w kilka sekund zgłosić błąd lub zaproponować nową funkcję."
     ]
   }
 ]
