@@ -43,6 +43,33 @@ class TestSGGWParser(unittest.TestCase):
         # Brak jawnego czasu w tekście -> użycie kolumn
         self.assertEqual(parse_time_bounds("Wykład ogólny", "08:15", "09:00"), ("08:15", "09:00"))
 
+    def test_extract_room_and_subject(self):
+        from sggw_parser import extract_room_and_subject
+        # Sala w nazwie zajęć (Wolica sala 106, aula 3)
+        sub, room, notes = extract_room_and_subject("Rozród zwierząt gospodarskich Wolica* gr 1 Wolica sala 106, aula 3")
+        self.assertEqual(sub, "Rozród zwierząt gospodarskich")
+        self.assertEqual(room, "Wolica sala 106, aula 3")
+
+        # Wykład z salą aud 7 b. 24 w drugiej linii
+        sub2, room2, _ = extract_room_and_subject("Higiena pasz w.\naud 7 b. 24")
+        self.assertEqual(sub2, "Higiena pasz")
+        self.assertEqual(room2, "aud 7 b. 24")
+
+        # Zajęcia z grupą i salą w b. 22
+        sub3, room3, _ = extract_room_and_subject("Diagn. Obrazowa małych zw. Gr 1,2 06/ambul b. 22 do 10:45")
+        self.assertEqual(sub3, "Diagn. Obrazowa małych zw")
+        self.assertEqual(room3, "06/ambul b. 22")
+
+        # Zajęcia z salą z ukośnikiem i budynkiem przed salą (Sala 6/7 b. 22)
+        sub4, room4, _ = extract_room_and_subject("Choroby zakaźne zwierząt gospodarskich ćw. gr. 1,2 b. 22 Sala  6/7  od 11:00 do 13:15")
+        self.assertEqual(sub4, "Choroby zakaźne zwierząt gospodarskich")
+        self.assertIn("6/7", room4)
+
+        # Fakultet z 1/2 semestru i salą typu 2131/Aula3 b. 23
+        sub5, room5, _ = extract_room_and_subject("Farrmakologia fakultet 1/2  2131/Aula3 b. 23")
+        self.assertEqual(sub5, "Farrmakologia")
+        self.assertIn("2131/Aula3", room5)
+
     def test_parse_semestr_7_real_file(self):
         if not os.path.exists(self.sample_xlsx):
             self.skipTest(f"Plik fixture {self.sample_xlsx} nie istnieje")

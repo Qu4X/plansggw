@@ -308,24 +308,30 @@ function create(academicCalendar, options = {}) {
       for (const [dayCode, daySlots] of Object.entries(plan)) {
         if (!daySlots || typeof daySlots !== "object") continue;
         const slotsArray = Array.isArray(daySlots) ? daySlots : Object.values(daySlots);
-        for (const lesson of slotsArray) {
-          if (!lesson || !lesson.sala) continue;
-          const roomName = String(lesson.sala).trim();
-          if (!roomName || roomName.toUpperCase() === "OL") continue;
+        for (const item of slotsArray) {
+          if (!item) continue;
+          const lessonsList = (typeof item === "object" && !item.przedmiot && !item.subject && !item.sala)
+            ? Object.values(item)
+            : [item];
+          for (const lesson of lessonsList) {
+            if (!lesson || !lesson.sala) continue;
+            const roomName = String(lesson.sala).trim();
+            if (!roomName || roomName.toUpperCase() === "OL") continue;
 
-          if (!index[roomName]) index[roomName] = {};
-          if (!index[roomName][dayCode]) index[roomName][dayCode] = [];
+            if (!index[roomName]) index[roomName] = {};
+            if (!index[roomName][dayCode]) index[roomName][dayCode] = [];
 
-          index[roomName][dayCode].push({
-            hours: lesson.godziny || lesson.hours || "",
-            subject: lesson.przedmiot || lesson.subject || "",
-            data_start: lesson.data_start,
-            weeks: lesson.tygodnie || lesson.weeks || 15,
-            co_ile: lesson.co_ile || 1,
-            polowa_sem: lesson.polowa_sem,
-            groups: lesson.grupy || (lesson.grupa ? [lesson.grupa] : []),
-            planId: planId
-          });
+            index[roomName][dayCode].push({
+              hours: lesson.godziny || lesson.hours || "",
+              subject: lesson.przedmiot || lesson.subject || "",
+              data_start: lesson.data_start,
+              weeks: lesson.tygodnie || lesson.weeks || 15,
+              co_ile: lesson.co_ile || 1,
+              polowa_sem: lesson.polowa_sem,
+              groups: lesson.grupy || (lesson.grupa ? [lesson.grupa] : []),
+              planId: planId
+            });
+          }
         }
       }
     }
@@ -413,30 +419,42 @@ function create(academicCalendar, options = {}) {
             ? daySlots.map((item, idx) => [idx, item])
             : Object.entries(daySlots);
 
-          for (const [slotKey, lesson] of entries) {
-            if (!lesson) continue;
-            const meetingInfo = getLessonMeetingInfo(lesson, sourceDay, mon, dateISO);
-            const isAct = meetingInfo.active;
+          for (const [slotKey, lessonOrGroup] of entries) {
+            if (!lessonOrGroup) continue;
+            const subLessons = (typeof lessonOrGroup === 'object' && !lessonOrGroup.przedmiot)
+              ? Object.values(lessonOrGroup)
+              : [lessonOrGroup];
 
-            if (isAct || scheduleOptions.includeInactive) {
-              const total = meetingInfo.total || lesson.tygodnie || 15;
-              const mNum = isAct ? meetingInfo.meetingNum : 0;
-              const isFin = mNum >= total;
+            for (const lesson of subLessons) {
+              if (!lesson || typeof lesson !== 'object') continue;
+              const meetingInfo = getLessonMeetingInfo(lesson, sourceDay, mon, dateISO);
+              const isAct = meetingInfo.active;
 
-              lessons.push({
-                ...lesson,
-                slot: parseInt(slotKey) || 0,
-                isActive: isAct,
-                meetingNumber: mNum,
-                totalMeetings: total,
-                isFinalMeeting: isFin,
-                sourceDay: sourceDay,
-                lessonDate: dateISO
-              });
+              if (isAct || scheduleOptions.includeInactive) {
+                const total = meetingInfo.total || lesson.tygodnie || 15;
+                const mNum = isAct ? meetingInfo.meetingNum : 0;
+                const isFin = mNum >= total;
+
+                lessons.push({
+                  ...lesson,
+                  slot: parseInt(slotKey) || 0,
+                  isActive: isAct,
+                  meetingNumber: mNum,
+                  totalMeetings: total,
+                  isFinalMeeting: isFin,
+                  sourceDay: sourceDay,
+                  lessonDate: dateISO
+                });
+              }
             }
           }
         }
-        lessons.sort((a, b) => a.slot - b.slot);
+        lessons.sort((a, b) => {
+          if (a.slot !== b.slot) return a.slot - b.slot;
+          const aStart = (a.godziny || "").split("-")[0].trim();
+          const bStart = (b.godziny || "").split("-")[0].trim();
+          return aStart.localeCompare(bStart);
+        });
 
         // Obsługa baseDayPreview w dniu zamiany dnia
         if (status === "daySwap") {
@@ -446,20 +464,32 @@ function create(academicCalendar, options = {}) {
             : Object.entries(originalDaySlots);
 
           baseDayPreview = [];
-          for (const [slotKey, lesson] of originalEntries) {
-            if (!lesson) continue;
-            baseDayPreview.push({
-              ...lesson,
-              slot: parseInt(slotKey) || 0,
-              isActive: true,
-              meetingNumber: null, // semantyka D5: podgląd nie liczy spotkań
-              totalMeetings: lesson.tygodnie || 15,
-              isFinalMeeting: false,
-              sourceDay: day,
-              lessonDate: dateISO
-            });
+          for (const [slotKey, lessonOrGroup] of originalEntries) {
+            if (!lessonOrGroup) continue;
+            const subLessons = (typeof lessonOrGroup === 'object' && !lessonOrGroup.przedmiot)
+              ? Object.values(lessonOrGroup)
+              : [lessonOrGroup];
+
+            for (const lesson of subLessons) {
+              if (!lesson || typeof lesson !== 'object') continue;
+              baseDayPreview.push({
+                ...lesson,
+                slot: parseInt(slotKey) || 0,
+                isActive: true,
+                meetingNumber: null, // semantyka D5: podgląd nie liczy spotkań
+                totalMeetings: lesson.tygodnie || 15,
+                isFinalMeeting: false,
+                sourceDay: day,
+                lessonDate: dateISO
+              });
+            }
           }
-          baseDayPreview.sort((a, b) => a.slot - b.slot);
+          baseDayPreview.sort((a, b) => {
+            if (a.slot !== b.slot) return a.slot - b.slot;
+            const aStart = (a.godziny || "").split("-")[0].trim();
+            const bStart = (b.godziny || "").split("-")[0].trim();
+            return aStart.localeCompare(bStart);
+          });
         }
       }
 

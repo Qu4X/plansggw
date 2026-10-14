@@ -215,4 +215,39 @@ assert.strictEqual(engine.resolveBaseDay(""), null);
 assert.strictEqual(engine.resolveBaseDay("invalid-date"), null);
 console.log("✅ [PASS] resolveBaseDay poprawnie rozwiązuje dzień bazowy i zamiany rektorskie.");
 
+// --- Test 15: Obsługa zagnieżdżonych slotów (wiele zajęć pod jednym kluczem slotu) ---
+console.log("\n-- Test 15: Obsługa zagnieżdżonych slotów (multi-lesson slots)");
+const multiLessonSchedule = {
+  "CZW": {
+    "15": {
+      "0": {
+        przedmiot: "Diagn. Obrazowa małych zw",
+        godziny: "08:15 - 10:45",
+        sala: "06/ambul b. 22",
+        data_start: "2026-10-01",
+        tygodnie: 15
+      },
+      "1": {
+        przedmiot: "Immunologia kliniczna",
+        godziny: "08:15 - 10:00",
+        sala: "s 105 b. 22",
+        data_start: "2026-10-01",
+        tygodnie: 15
+      }
+    }
+  }
+};
+const monOct = new Date(2026, 9, 5); // 05.10.2026
+const multiResult = engine.resolveWeekSchedule(monOct, multiLessonSchedule);
+assert.strictEqual(multiResult["CZW"].lessons.length, 2, "CZW powinno rozpakować 2 zajęcia ze slotu 15");
+assert.strictEqual(multiResult["CZW"].lessons[0].przedmiot, "Diagn. Obrazowa małych zw");
+assert.strictEqual(multiResult["CZW"].lessons[0].sala, "06/ambul b. 22");
+assert.strictEqual(multiResult["CZW"].lessons[1].przedmiot, "Immunologia kliniczna");
+assert.strictEqual(multiResult["CZW"].lessons[1].sala, "s 105 b. 22");
+
+const multiIndex = engine.buildScheduleIndex({ "wmw_7": multiLessonSchedule });
+assert.ok(multiIndex["06/ambul b. 22"], "Sala 06/ambul b. 22 powinna być w indeksie");
+assert.ok(multiIndex["s 105 b. 22"], "Sala s 105 b. 22 powinna być w indeksie");
+console.log("✅ [PASS] Zagnieżdżone sloty poprawnie rozpakowane w resolveWeekSchedule i buildScheduleIndex.");
+
 console.log("\n🎉 Wszystkie testy ScheduleEngine zakończone sukcesem (100% PASS)!\n");

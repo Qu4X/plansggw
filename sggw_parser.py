@@ -89,6 +89,42 @@ def classify_sggw_form(text: str) -> str:
     return "cwiczenia"
 
 
+ROOM_PATTERNS = [
+    r'(\b\d{2,4}\s*/\s*Aula\s*\d*(?:\s*b\.?\s*\d+)?)',
+    r'(Wolica\s*sala\s*\d+,\s*aula\s*\d+)',
+    r'(Wolica\s*sala\s*\d+)',
+    r'(sala\s*\d+,\s*aula\s*\d+)',
+    r'(sala\s*109/ambulatorium/Obory)',
+    r'(sala109/ambulatorium/Obory)',
+    r'(06/ambul(?:\s*b\.?\s*\d+)?)',
+    r'(sale\s*zakładu(?:\s*b\.?\s*\d+)?)',
+    r'(sala\s*sekcyjna(?:\s*/\s*sala\s*ćwiczeniowa)?)',
+    r'(aud\s*\d*(?:\s*b\.?\s*\d+)?)',
+    r'(aud\s*b\.?\s*\d+)',
+    r'(Aula\s*\d*(?:\s*b\.?\s*\d+)?)',
+    r'(Audytorium(?:\s*b\.?\s*\d+)?)',
+    r'((?:b\.?\s*\d+\s+)?sala\s*\d+(?:[a-z])?(?:/\d+)?(?:\s*b\.?\s*\d+)?)',
+    r'(s\s*\d+\s*b\.?\s*\d+)',
+    r'(\b\d{2,4}\s*w\s*b\.?\s*\d+)',
+    r'(\b\d{2,4}\s*w\s*\d+)',
+    r'(Wolica)',
+    r'(Obory)',
+    r'(b\.?\s*2[2-4])'
+]
+
+SUBJECT_METADATA_PATTERNS = [
+    r'(\b\d{1,2}[:.]\d{2}\b|\bod\s*\d{1,2}[:.]\d{2}!?\b|\bdo\s*\d{1,2}[:.]\d{2}!?\b)',
+    r'(od\s*\d+\s*tygodnia(?:\s*zaj[eę]ć)?|1-\d+\s*tydzień(?:\s*zaj[eę]ć)?|2\s*poł\s*semestru|1\.\s*poł\s*semestru|\b1/2\b|\b2/2\b)',
+    r'\bgr\.?\s*[\d,\s]+|\bgr\s*[\d,\s]+',
+    r'\b\d{2,4}\s*/\s*Aula\s*\d*(?:\s*b\.?\s*\d+)?',
+    r'sala\s*sekcyjna(?:\s*/\s*sala\s*ćwiczeniowa)?|sale\s*zakładu(?:\s*b\.?\s*\d+)?|(?:b\.?\s*\d+\s+)?sala\s*\d+[a-z]?(?:/\d+)?(?:\s*b\.?\s*\d+)?|aula\s*\d*|audytorium|aud\s*\d*|ambulatorium|ambul',
+    r'\b\d{2,4}\s*w\s*b\.?\s*\d+|\b\d{2,4}\s*w\s*\d+|\bs\s*\d+\s*b\.?\s*\d+|\b06/ambul\b',
+    r'b\.?\s*\d+',
+    r'\bWolica\b|\bObory\b',
+    r'\bćw\.?|\bćwiczenia|\bwykład\b|\bwyklad\b|\bfakultet\.?|\bw\.(?!\w)|\bw\b'
+]
+
+
 def extract_room_and_subject(text: str) -> Tuple[str, str, str]:
     """
     Wyodrębnia nazwę przedmiotu, salę oraz uwagi z tekstu komórki.
@@ -98,31 +134,32 @@ def extract_room_and_subject(text: str) -> Tuple[str, str, str]:
         return ("", "", "")
 
     full_text = " ".join(lines)
-    # Wykrywanie sali: 'Aula 1 b 24', 'sala 109', 'Audytorium b 22', 'sala sekcyjna', 'b. 24'
+
+    # 1. Wykrywanie sali
     room = ""
-    room_patterns = [
-        r'(Aula\s*\d*(?:\s*b\.?\s*\d+)?)',
-        r'(Audytorium(?:\s*b\.?\s*\d+)?)',
-        r'(sala\s*\d+(?:[a-z])?(?:\s*b\.?\s*\d+)?)',
-        r'(sale\s*zakładu(?:\s*b\.?\s*\d+)?)',
-        r'(sala\s*sekcyjna(?:\s*b\.?\s*\d+)?)',
-        r'(\b\d{2,4}\s*w\s*b\.?\s*\d+)',
-        r'(\b\d{2,4}\s*w\s*\d+)',
-        r'(Wolica(?:\s*sala\s*\d+)?)'
-    ]
-    for rp in room_patterns:
+    for rp in ROOM_PATTERNS:
         m = re.search(rp, full_text, re.IGNORECASE)
         if m:
             room = m.group(1).strip()
             break
 
-    # Przedmiot zazwyczaj znajduje się w pierwszej linii lub przed słowem ćw./wykład
+    # 2. Wyodrębnienie i oczyszczenie nazwy przedmiotu
     first_line = lines[0]
-    subject = re.sub(r'\s*(?:wykład|wyklad|ćw\.?|cw\.?|ćwiczenia|fakultet).*$', '', first_line, flags=re.IGNORECASE).strip()
-    if not subject:
-        subject = first_line
+    subject = first_line
+    for pat in SUBJECT_METADATA_PATTERNS:
+        subject = re.sub(pat, '', subject, flags=re.IGNORECASE)
+    subject = re.sub(r'[*!,;:/()]+', ' ', subject)
+    subject = ' '.join(subject.split()).strip()
+    subject = re.sub(r'\s+[1-9]$', '', subject).strip()
+    subject = re.sub(r'^[.\-\s]+|[.\-\s]+$', '', subject)
 
-    # Uwagi / tygodnie
+    if not subject:
+        # Fallback do pierwszej linii bez dopisku formy
+        subject = re.sub(r'\s*(?:wykład|wyklad|ćw\.?|cw\.?|ćwiczenia|fakultet).*$', '', first_line, flags=re.IGNORECASE).strip()
+        if not subject:
+            subject = first_line
+
+    # 3. Uwagi / tygodnie
     notes = ""
     week_notes = re.findall(r'(?:od\s*\d+\s*tygodnia|1-\d+\s*tydzień|2\s*poł\s*semestru|1\.\s*poł\s*semestru|od\s*\d+:\d+!)', full_text, re.IGNORECASE)
     if week_notes:
