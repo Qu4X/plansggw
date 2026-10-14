@@ -564,9 +564,11 @@ function setupEventListeners() {
       e.preventDefault();
       const currentGroup = state.activeGroup || "Brak (nie wybrano)";
       const currentPlan = state.activePlanName || "Brak";
-      const subject = encodeURIComponent("[Plan WN] Zgłoszenie błędu / uwaga");
+      const subject = encodeURIComponent("[Plan WMW] Zgłoszenie błędu / uwaga");
+      const ua = (typeof navigator !== "undefined" && navigator.userAgent) || (typeof window !== "undefined" && window.navigator && window.navigator.userAgent) || "N/A";
+      const resolution = (typeof window !== "undefined" && window.innerWidth) ? `${window.innerWidth}x${window.innerHeight}` : "N/A";
       const body = encodeURIComponent(
-        `Cześć,\n\nOpis problemu lub uwagi:\n\n\n---\nDane diagnostyczne:\nGrupa: ${currentGroup}\nKierunek: ${currentPlan}\nPrzeglądarka: ${navigator.userAgent}\nRozdzielczość: ${window.innerWidth}x${window.innerHeight}\n`
+        `Cześć,\n\nOpis problemu lub uwagi:\n\n\n---\nDane diagnostyczne:\nGrupa: ${currentGroup}\nKierunek: ${currentPlan}\nPrzeglądarka: ${ua}\nRozdzielczość: ${resolution}\n`
       );
       window.location.href = `mailto:?subject=${subject}&body=${body}`;
     });
@@ -1947,7 +1949,8 @@ function openCalendarModal() {
   }
 
   // Device detection to recommend appropriate ecosystem (iOS vs Android / other)
-  const isApple = /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent) && !window.MSStream;
+  const ua = (typeof navigator !== "undefined" && navigator.userAgent) || (typeof window !== "undefined" && window.navigator && window.navigator.userAgent) || "";
+  const isApple = /iPhone|iPad|iPod|Macintosh/.test(ua) && (typeof window === "undefined" || !window.MSStream);
   if (elements.calAppleCard && elements.calGoogleCard) {
     elements.calAppleCard.classList.toggle("recommended", isApple);
     elements.calGoogleCard.classList.toggle("recommended", !isApple);
