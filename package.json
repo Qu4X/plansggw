@@ -1,6 +1,6 @@
 {
   "name": "plan-wmw",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Nowoczesny, responsywny plan zajęć dla studentów Wydziału Medycyny Weterynaryjnej SGGW w Warszawie",
   "private": true,
   "scripts": {

@@ -1,5 +1,5 @@
 // Service Worker for Plan WMW PWA
-const CACHE_NAME = 'plan-wmw-v1.0.0';
+const CACHE_NAME = 'plan-wmw-v1.0.1';
 const STATIC_ASSETS = [
   './',
   './index.html',
@@ -9,6 +9,7 @@ const STATIC_ASSETS = [
   './js/cross-reference.js',
   './js/events-service.js',
   './manifest.json',
+  './favicon.ico',
   './icon-192.png',
   './icon-512.png',
   './maskable_icon_x512.png',
